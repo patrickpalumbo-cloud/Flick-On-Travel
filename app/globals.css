@@ -69,6 +69,12 @@ textarea {
   }
 }
 
+@keyframes routeDash {
+  to {
+    stroke-dashoffset: -36;
+  }
+}
+
 @keyframes revealIn {
   from {
     opacity: 0;
@@ -131,6 +137,11 @@ textarea {
 
 .snap-panel {
   scroll-snap-align: start;
+}
+
+.route-line {
+  stroke-dasharray: 12 12;
+  animation: routeDash 1.8s linear infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {

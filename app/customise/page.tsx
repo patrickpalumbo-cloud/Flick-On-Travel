@@ -2,15 +2,15 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { CalendarDays, Plus, Save, Sparkles } from "lucide-react";
+import { ArrowRight, CalendarDays, GripVertical, Hotel, MapPinned, Minus, Plane, Plus, Save, Sparkles, TrainFront, Trophy, X } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { TripShell } from "@/components/trip-shell";
-import { ItineraryView } from "@/components/itinerary-view";
 import { buildItinerary, buildTransport, cities, defaultPreferences, experiences, type City, type Experience, type Itinerary } from "@/lib/trip-data";
 import { readItinerary, writeItinerary } from "@/lib/storage";
 
 export default function CustomisePage() {
   const [itinerary, setItinerary] = useState<Itinerary>(() => buildItinerary(defaultPreferences));
+  const [draggedCityId, setDraggedCityId] = useState<string | null>(null);
 
   useEffect(() => {
     setItinerary(normalizeItinerary(readItinerary()));
@@ -58,6 +58,20 @@ export default function CustomisePage() {
     updateItinerary({ ...itinerary, cities: nextCities });
   }
 
+  function moveCity(targetCityId: string) {
+    if (!draggedCityId || draggedCityId === targetCityId) return;
+
+    const fromIndex = itinerary.cities.findIndex((city) => city.id === draggedCityId);
+    const toIndex = itinerary.cities.findIndex((city) => city.id === targetCityId);
+    if (fromIndex < 0 || toIndex < 0) return;
+
+    const nextCities = [...itinerary.cities];
+    const [movedCity] = nextCities.splice(fromIndex, 1);
+    nextCities.splice(toIndex, 0, movedCity);
+    setDraggedCityId(null);
+    updateItinerary({ ...itinerary, cities: nextCities });
+  }
+
   function addExperience(experience: Experience) {
     updateItinerary({
       ...itinerary,
@@ -91,15 +105,151 @@ export default function CustomisePage() {
           <BuilderStat icon={Save} label="Route modules" value={`${itinerary.cities.length}`} />
         </div>
 
-        <ItineraryView
-          itinerary={itinerary}
-          editable
-          cityOptions={cityPool}
-          onSwap={swapCity}
-          onDestinationChange={changeCity}
-          onNightChange={changeNights}
-          onExperienceRemove={removeExperience}
-        />
+        <section className="grid gap-6 xl:grid-cols-[minmax(0,1.2fr)_minmax(360px,0.8fr)]">
+          <div className="grid gap-6">
+            <RouteMap itinerary={itinerary} />
+
+            <div className="border-y border-white/10 py-6">
+              <div className="mb-6 flex flex-col justify-between gap-4 md:flex-row md:items-end">
+                <div>
+                  <p className="text-sm font-semibold uppercase tracking-[0.22em] text-brass">Concierge timeline</p>
+                  <h2 className="mt-2 font-serif text-4xl text-white">Drag the route into shape.</h2>
+                </div>
+                <p className="max-w-md text-sm leading-6 text-ivory/58">Reorder destinations, adjust nights, swap cities and layer sports-led experiences into each stop.</p>
+              </div>
+
+              <div className="relative grid gap-5">
+                <div className="absolute bottom-10 left-5 top-10 hidden w-px bg-gradient-to-b from-brass via-white/20 to-brass/20 md:block" />
+                {itinerary.cities.map((city, index) => {
+                  const cityExperiences = (itinerary.selectedExperiences ?? []).filter((experience) => experience.cityId === city.id);
+                  const cityRecommendations = experiences.filter((experience) => experience.cityId === city.id && !selectedExperienceIds.has(experience.id));
+                  return (
+                    <article
+                      key={city.id}
+                      draggable
+                      onDragStart={() => setDraggedCityId(city.id)}
+                      onDragOver={(event) => event.preventDefault()}
+                      onDrop={() => moveCity(city.id)}
+                      onDragEnd={() => setDraggedCityId(null)}
+                      className={`premium-panel grid gap-5 p-5 transition duration-300 md:grid-cols-[auto_minmax(0,1fr)] ${draggedCityId === city.id ? "scale-[0.99] border-brass/70 opacity-70" : "hover:-translate-y-1"}`}
+                    >
+                      <div className="relative z-10 flex items-start gap-3 md:block">
+                        <button className="focus-ring flex h-11 w-11 items-center justify-center border border-white/15 bg-black/30 text-ivory/70" aria-label={`Drag ${city.name}`}>
+                          <GripVertical size={18} aria-hidden="true" />
+                        </button>
+                        <div className="mt-0 flex h-11 w-11 items-center justify-center border border-brass/50 bg-brass text-ink md:mt-4">
+                          {index + 1}
+                        </div>
+                      </div>
+
+                      <div>
+                        <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-start">
+                          <div>
+                            <p className="text-sm text-brass">{city.country} · {city.region}</p>
+                            <h3 className="mt-2 font-serif text-4xl text-white">{city.name}</h3>
+                            <p className="mt-3 max-w-2xl leading-7 text-ivory/68">{city.headline}</p>
+                            <Link href={`/destinations/${city.id}`} className="focus-ring mt-4 inline-flex items-center gap-2 rounded-sm text-sm font-semibold text-brass transition hover:text-white">
+                              Destination dossier <ArrowRight size={14} aria-hidden="true" />
+                            </Link>
+                          </div>
+                          <div className="grid gap-3 sm:grid-cols-2 lg:min-w-64 lg:grid-cols-1">
+                            <label className="grid gap-2 text-sm text-ivory/68">
+                              Destination
+                              <select
+                                className="focus-ring h-11 rounded-sm border border-white/15 bg-white px-3 text-ink"
+                                value={city.id}
+                                onChange={(event) => changeCity(city.id, event.target.value)}
+                              >
+                                {cityPool.map((option) => (
+                                  <option key={option.id} value={option.id} disabled={option.id !== city.id && itinerary.cities.some((selectedCity) => selectedCity.id === option.id)}>
+                                    {option.name}
+                                  </option>
+                                ))}
+                              </select>
+                            </label>
+                            <div className="grid gap-2 text-sm text-ivory/68">
+                              Nights
+                              <div className="flex h-11 items-center justify-between border border-white/15 bg-black/25 px-2">
+                                <button className="focus-ring flex h-8 w-8 items-center justify-center rounded-sm border border-white/15" onClick={() => changeNights(city.id, city.nights - 1)} aria-label={`Reduce nights in ${city.name}`}>
+                                  <Minus size={14} aria-hidden="true" />
+                                </button>
+                                <span className="text-lg font-semibold text-white">{city.nights}</span>
+                                <button className="focus-ring flex h-8 w-8 items-center justify-center rounded-sm border border-white/15" onClick={() => changeNights(city.id, city.nights + 1)} aria-label={`Add nights in ${city.name}`}>
+                                  <Plus size={14} aria-hidden="true" />
+                                </button>
+                              </div>
+                            </div>
+                            <button className="focus-ring inline-flex min-h-11 items-center justify-center gap-2 rounded-sm border border-white/15 bg-black/20 px-3 text-sm transition hover:border-brass/70" onClick={() => swapCity(city.id)}>
+                              <MapPinned size={15} aria-hidden="true" />
+                              Smart swap
+                            </button>
+                          </div>
+                        </div>
+
+                        <div className="mt-6 grid gap-4 lg:grid-cols-2">
+                          <ConciergeList icon={Trophy} title="Recommended sports experiences" items={cityRecommendations.map((experience) => experience.title)} empty="All matching sports experiences have been added." />
+                          <ConciergeList icon={Hotel} title="Premium hotel suggestions" items={city.hotels.map((hotel) => `${hotel.name} · ${hotel.tier}`)} />
+                        </div>
+
+                        <div className="mt-5 grid gap-3">
+                          {cityExperiences.map((experience) => (
+                            <div key={experience.id} className="flex items-start justify-between gap-3 border border-brass/25 bg-brass/10 p-3">
+                              <div>
+                                <p className="text-sm font-semibold text-white">{experience.title}</p>
+                                <p className="mt-1 text-xs text-ivory/52">{experience.category} · {experience.eyebrow}</p>
+                              </div>
+                              <button className="focus-ring flex h-8 w-8 shrink-0 items-center justify-center rounded-sm border border-white/15 text-ivory/70 hover:bg-white hover:text-ink" onClick={() => removeExperience(experience.id)} aria-label={`Remove ${experience.title}`}>
+                                <X size={14} aria-hidden="true" />
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+
+                        {cityRecommendations.length ? (
+                          <div className="mt-5 flex flex-wrap gap-2">
+                            {cityRecommendations.slice(0, 2).map((experience) => (
+                              <button key={experience.id} className="focus-ring inline-flex min-h-10 items-center gap-2 rounded-sm bg-ivory px-3 text-sm font-semibold text-ink transition hover:bg-white" onClick={() => addExperience(experience)}>
+                                <Plus size={14} aria-hidden="true" />
+                                Add {experience.title}
+                              </button>
+                            ))}
+                          </div>
+                        ) : null}
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+
+          <aside className="grid gap-5 xl:sticky xl:top-28 xl:self-start">
+            <section className="premium-panel p-5">
+              <div className="flex items-center gap-3">
+                <TrainFront className="text-brass" size={20} aria-hidden="true" />
+                <h2 className="text-xl font-semibold text-white">Transport suggestions</h2>
+              </div>
+              <div className="mt-5 grid gap-3">
+                {itinerary.transport.map((option) => (
+                  <article key={`${option.from}-${option.to}`} className="border-t border-white/10 pt-3">
+                    <p className="font-semibold text-white">{option.from} to {option.to}</p>
+                    <p className="mt-1 text-sm text-brass">{option.mode} · {option.duration}</p>
+                    <p className="mt-2 text-sm leading-6 text-ivory/58">{option.note}</p>
+                  </article>
+                ))}
+              </div>
+            </section>
+
+            <section className="border border-brass/40 bg-brass p-5 text-ink shadow-[0_24px_90px_rgba(184,150,87,0.18)]">
+              <Plane size={20} aria-hidden="true" />
+              <h2 className="mt-4 text-2xl font-semibold">Optimise this trip with points</h2>
+              <p className="mt-2 text-black/68">Send this route for cabin, hotel and transfer-partner strategy.</p>
+              <Link href="/points" className="focus-ring mt-5 inline-flex min-h-11 items-center justify-center gap-2 rounded-sm bg-ink px-5 text-sm font-semibold text-ivory">
+                Start enquiry <ArrowRight size={15} aria-hidden="true" />
+              </Link>
+            </section>
+          </aside>
+        </section>
 
         <section className="mt-10 border-y border-white/10 py-6">
           <div className="flex flex-col justify-between gap-4 border-b border-white/10 pb-5 md:flex-row md:items-end">
@@ -157,5 +307,65 @@ function BuilderStat({ icon: Icon, label, value }: { icon: LucideIcon; label: st
       <p className="mt-4 text-sm text-ivory/52">{label}</p>
       <p className="mt-1 text-3xl font-semibold text-white">{value}</p>
     </div>
+  );
+}
+
+function ConciergeList({ icon: Icon, title, items, empty = "No suggestions yet." }: { icon: LucideIcon; title: string; items: string[]; empty?: string }) {
+  return (
+    <div className="border border-white/10 bg-black/20 p-4">
+      <div className="flex items-center gap-2">
+        <Icon className="text-brass" size={17} aria-hidden="true" />
+        <h4 className="text-sm font-semibold text-white">{title}</h4>
+      </div>
+      <div className="mt-3 grid gap-2">
+        {(items.length ? items : [empty]).map((item) => (
+          <p key={item} className="text-sm leading-6 text-ivory/62">
+            {item}
+          </p>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function RouteMap({ itinerary }: { itinerary: Itinerary }) {
+  const points = itinerary.cities.map((city, index) => ({
+    city,
+    x: itinerary.cities.length <= 1 ? 50 : 12 + index * (76 / (itinerary.cities.length - 1)),
+    y: index % 2 === 0 ? 36 : 62
+  }));
+  const path = points.map((point, index) => `${index === 0 ? "M" : "L"} ${point.x} ${point.y}`).join(" ");
+
+  return (
+    <section className="premium-panel overflow-hidden p-5">
+      <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
+        <div>
+          <p className="text-sm font-semibold uppercase tracking-[0.22em] text-brass">Animated route map</p>
+          <h2 className="mt-2 font-serif text-4xl text-white">A living route preview.</h2>
+        </div>
+        <p className="text-sm text-ivory/55">{itinerary.cities.map((city) => city.name).join(" / ")}</p>
+      </div>
+
+      <div className="relative mt-6 min-h-72 overflow-hidden border border-white/10 bg-black/20">
+        <div className="absolute -left-20 -top-24 h-96 w-96 rounded-full bg-brass/10 blur-3xl" />
+        <div className="absolute inset-0 opacity-[0.18]" style={{ backgroundImage: "linear-gradient(rgba(255,255,255,0.14) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.14) 1px, transparent 1px)", backgroundSize: "42px 42px" }} />
+        <svg viewBox="0 0 100 100" className="absolute inset-0 h-full w-full" preserveAspectRatio="none" aria-hidden="true">
+          <path d={path} fill="none" stroke="rgba(255,255,255,0.16)" strokeWidth="1.1" />
+          <path className="route-line" d={path} fill="none" stroke="#b89657" strokeLinecap="round" strokeWidth="1.25" />
+        </svg>
+        {points.map((point, index) => (
+          <div
+            key={point.city.id}
+            className="absolute -translate-x-1/2 -translate-y-1/2"
+            style={{ left: `${point.x}%`, top: `${point.y}%` }}
+          >
+            <div className="flex h-12 w-12 items-center justify-center rounded-full border border-brass bg-ink text-sm font-semibold text-brass shadow-[0_0_40px_rgba(184,150,87,0.26)]">
+              {index + 1}
+            </div>
+            <p className="mt-2 min-w-24 text-center text-xs font-semibold uppercase tracking-[0.14em] text-white">{point.city.name}</p>
+          </div>
+        ))}
+      </div>
+    </section>
   );
 }
