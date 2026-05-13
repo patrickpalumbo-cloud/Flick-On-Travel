@@ -1,15 +1,20 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, Building2, Plane, Repeat2, Ticket, TrainFront } from "lucide-react";
-import type { Itinerary } from "@/lib/trip-data";
+import { ArrowRight, Building2, Plane, Repeat2, Ticket, TrainFront, X } from "lucide-react";
+import type { City, Itinerary } from "@/lib/trip-data";
 
-export function ItineraryView({ itinerary, editable = false, onSwap, onNightChange }: {
+export function ItineraryView({ itinerary, editable = false, cityOptions = [], onSwap, onDestinationChange, onNightChange, onExperienceRemove }: {
   itinerary: Itinerary;
   editable?: boolean;
+  cityOptions?: City[];
   onSwap?: (cityId: string) => void;
+  onDestinationChange?: (cityId: string, nextCityId: string) => void;
   onNightChange?: (cityId: string, nights: number) => void;
+  onExperienceRemove?: (experienceId: string) => void;
 }) {
+  const selectedExperiences = itinerary.selectedExperiences ?? [];
+
   return (
     <div className="grid gap-8">
       <section className="grid gap-5 lg:grid-cols-[0.9fr_1.1fr]">
@@ -32,6 +37,30 @@ export function ItineraryView({ itinerary, editable = false, onSwap, onNightChan
               <span className="border border-white/10 px-3 py-1 text-sm text-ivory/75">{city.nights} nights</span>
             </div>
             <p className="mt-5 min-h-20 leading-7 text-ivory/72">{city.headline}</p>
+            {selectedExperiences.filter((experience) => experience.cityId === city.id).length ? (
+              <div className="mt-5 grid gap-2 border-y border-white/10 py-4">
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brass">Added experiences</p>
+                {selectedExperiences
+                  .filter((experience) => experience.cityId === city.id)
+                  .map((experience) => (
+                    <div key={experience.id} className="flex items-start justify-between gap-3 bg-white/[0.05] p-3">
+                      <div>
+                        <p className="text-sm font-semibold text-white">{experience.title}</p>
+                        <p className="mt-1 text-xs text-ivory/52">{experience.category} · {experience.eyebrow}</p>
+                      </div>
+                      {editable ? (
+                        <button
+                          aria-label={`Remove ${experience.title}`}
+                          className="focus-ring flex h-8 w-8 shrink-0 items-center justify-center rounded-sm border border-white/15 text-ivory/70 hover:bg-white hover:text-ink"
+                          onClick={() => onExperienceRemove?.(experience.id)}
+                        >
+                          <X size={14} aria-hidden="true" />
+                        </button>
+                      ) : null}
+                    </div>
+                  ))}
+              </div>
+            ) : null}
             <div className="mt-5 grid gap-2">
               {city.activities.map((activity) => (
                 <p key={activity} className="flex gap-2 text-sm text-ivory/72">
@@ -41,22 +70,42 @@ export function ItineraryView({ itinerary, editable = false, onSwap, onNightChan
               ))}
             </div>
             {editable ? (
-              <div className="mt-6 flex items-center gap-3">
-                <button className="focus-ring inline-flex min-h-10 items-center gap-2 rounded-sm border border-white/15 px-3 text-sm" onClick={() => onSwap?.(city.id)}>
-                  <Repeat2 size={15} aria-hidden="true" />
-                  Swap
-                </button>
-                <label className="flex items-center gap-2 text-sm text-ivory/70">
-                  Nights
-                  <input
-                    className="focus-ring h-10 w-16 rounded-sm border border-white/15 bg-white px-2 text-center text-ink"
-                    type="number"
-                    min={1}
-                    max={7}
-                    value={city.nights}
-                    onChange={(event) => onNightChange?.(city.id, Number(event.target.value))}
-                  />
+              <div className="mt-6 grid gap-3">
+                <label className="grid gap-2 text-sm text-ivory/70">
+                  Destination
+                  <select
+                    className="focus-ring h-10 rounded-sm border border-white/15 bg-white px-3 text-ink"
+                    value={city.id}
+                    onChange={(event) => onDestinationChange?.(city.id, event.target.value)}
+                  >
+                    {cityOptions.map((option) => (
+                      <option
+                        key={option.id}
+                        value={option.id}
+                        disabled={option.id !== city.id && itinerary.cities.some((selectedCity) => selectedCity.id === option.id)}
+                      >
+                        {option.name}
+                      </option>
+                    ))}
+                  </select>
                 </label>
+                <div className="flex items-center gap-3">
+                  <button className="focus-ring inline-flex min-h-10 items-center gap-2 rounded-sm border border-white/15 px-3 text-sm" onClick={() => onSwap?.(city.id)}>
+                    <Repeat2 size={15} aria-hidden="true" />
+                    Swap
+                  </button>
+                  <label className="flex items-center gap-2 text-sm text-ivory/70">
+                    Nights
+                    <input
+                      className="focus-ring h-10 w-16 rounded-sm border border-white/15 bg-white px-2 text-center text-ink"
+                      type="number"
+                      min={1}
+                      max={7}
+                      value={city.nights}
+                      onChange={(event) => onNightChange?.(city.id, Number(event.target.value))}
+                    />
+                  </label>
+                </div>
               </div>
             ) : null}
           </article>

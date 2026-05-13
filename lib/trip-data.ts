@@ -39,6 +39,7 @@ export type Itinerary = {
   title: string;
   summary: string;
   cities: City[];
+  selectedExperiences: Experience[];
   transport: TransportOption[];
 };
 
@@ -298,10 +299,17 @@ export function buildItinerary(preferences: TripPreferences): Itinerary {
     nights: preferences.style === "City sprint" ? Math.min(city.nights, 2) : preferences.style === "Slow luxury" ? city.nights + 1 : city.nights
   }));
 
+  const selectedCityIds = new Set(citiesWithPace.map((city) => city.id));
+  const selectedExperiences = preferences.experienceLikes
+    .map((experienceId) => experiences.find((experience) => experience.id === experienceId))
+    .filter((experience): experience is Experience => Boolean(experience))
+    .filter((experience) => selectedCityIds.has(experience.cityId));
+
   return {
     title: `${preferences.region} sports-lounge escape`,
     summary: `A ${preferences.budget.toLowerCase()} modular route built around ${preferences.sports.join(", ") || "major events"} with ${preferences.interests.join(", ").toLowerCase() || "premium city time"}.`,
     cities: citiesWithPace,
+    selectedExperiences,
     transport: buildTransport(citiesWithPace)
   };
 }

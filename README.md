@@ -14,7 +14,7 @@ A responsive MVP web app for premium sports, points and experience-based travel 
 - Premium landing page
 - Swipe-style quiz with destination and experience decks
 - Recommended itinerary generated from preloaded city data
-- Custom itinerary editor with city swaps and nights controls
+- Modular itinerary builder with destination swaps, nights controls and add/remove experiences
 - Waitlist and points-flight enquiry capture
 
 ## Run locally
