@@ -15,7 +15,7 @@ export default function LandingPage() {
     <main className="min-h-screen bg-ink text-ivory">
       <Nav />
       <section className="relative min-h-screen overflow-hidden">
-        <Image src="/lounge-hero.png" alt="Luxury airport lounge with sports travel details" fill priority className="object-cover" />
+        <Image src="/lounge-hero.jpg" alt="Luxury airport lounge with sports travel details" fill priority className="object-cover" />
         <div className="absolute inset-0 bg-gradient-to-r from-black via-black/82 to-black/20" />
         <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-ink to-transparent" />
 
