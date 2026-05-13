@@ -159,7 +159,7 @@ function buildGallery(cityId: string, cityName: string): DestinationImage[] {
   const themes = galleryThemes[cityId] ?? [cityName, `${cityName} nightlife`, `${cityName} food`, `${cityName} luxury hotel`, `${cityName} landscape`];
 
   return themes.map((theme, index) => ({
-    src: `https://source.unsplash.com/1800x1200/?${encodeURIComponent(theme)}&sig=${cityId}-${index}`,
+    src: `/images/destinations/${cityId}-${index + 1}.jpg`,
     alt: `${cityName} ${galleryCategories[index % galleryCategories.length].toLowerCase()} cinematic travel imagery`,
     category: galleryCategories[index % galleryCategories.length],
     caption: theme

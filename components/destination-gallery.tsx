@@ -14,6 +14,7 @@ export function DestinationGallery({ images, title, variant = "immersive" }: Des
   const [index, setIndex] = useState(0);
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [fullscreen, setFullscreen] = useState(false);
+  const [failedImages, setFailedImages] = useState<Set<string>>(() => new Set());
   const activeImage = images[index];
 
   useEffect(() => {
@@ -39,9 +40,19 @@ export function DestinationGallery({ images, title, variant = "immersive" }: Des
     move(delta > 0 ? -1 : 1);
   }
 
+  function markImageFailed(src: string) {
+    setFailedImages((current) => {
+      if (current.has(src)) return current;
+      const next = new Set(current);
+      next.add(src);
+      return next;
+    });
+  }
+
   if (!activeImage) return null;
 
   const height = variant === "card" ? "h-64" : "h-[72vh] min-h-[520px]";
+  const activeImageFailed = failedImages.has(activeImage.src);
 
   return (
     <>
@@ -53,16 +64,28 @@ export function DestinationGallery({ images, title, variant = "immersive" }: Des
           if (touch) handleTouchEnd(touch.clientX);
         }}
       >
-        {images.map((image, imageIndex) => (
-          <img
-            key={image.src}
-            src={image.src}
-            alt={image.alt}
-            className={`absolute inset-0 h-full w-full object-cover transition duration-700 ${
-              imageIndex === index ? "scale-100 opacity-100" : "scale-105 opacity-0"
-            }`}
-          />
-        ))}
+        {images.map((image, imageIndex) =>
+          failedImages.has(image.src) ? (
+            <GalleryFallback
+              key={image.src}
+              caption={image.caption}
+              category={image.category}
+              title={title}
+              visible={imageIndex === index}
+              variant={variant}
+            />
+          ) : (
+            <img
+              key={image.src}
+              src={image.src}
+              alt={image.alt}
+              onError={() => markImageFailed(image.src)}
+              className={`absolute inset-0 h-full w-full object-cover transition duration-700 ${
+                imageIndex === index ? "scale-100 opacity-100" : "scale-105 opacity-0"
+              }`}
+            />
+          )
+        )}
         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
         <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-transparent to-black/20" />
 
@@ -111,7 +134,11 @@ export function DestinationGallery({ images, title, variant = "immersive" }: Des
 
       {fullscreen ? (
         <div className="fixed inset-0 z-[80] bg-black">
-          <img src={activeImage.src} alt={activeImage.alt} className="h-full w-full object-contain" />
+          {activeImageFailed ? (
+            <GalleryFallback caption={activeImage.caption} category={activeImage.category} title={title} visible variant="fullscreen" />
+          ) : (
+            <img src={activeImage.src} alt={activeImage.alt} onError={() => markImageFailed(activeImage.src)} className="h-full w-full object-contain" />
+          )}
           <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black via-black/70 to-transparent p-4 sm:p-6">
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brass">{activeImage.category}</p>
             <h2 className="mt-2 font-serif text-4xl text-white sm:text-6xl">{activeImage.caption}</h2>
@@ -128,5 +155,40 @@ export function DestinationGallery({ images, title, variant = "immersive" }: Des
         </div>
       ) : null}
     </>
+  );
+}
+
+function GalleryFallback({
+  caption,
+  category,
+  title,
+  visible,
+  variant
+}: {
+  caption: string;
+  category: DestinationImage["category"];
+  title: string;
+  visible: boolean;
+  variant: "card" | "immersive" | "fullscreen";
+}) {
+  const scale = visible ? "scale-100 opacity-100" : "scale-105 opacity-0";
+  const fullscreen = variant === "fullscreen";
+
+  return (
+    <div
+      className={`absolute inset-0 overflow-hidden bg-[radial-gradient(circle_at_30%_20%,rgba(200,168,111,0.24),transparent_28%),linear-gradient(135deg,#050505,#14100b_45%,#050505)] transition duration-700 ${scale}`}
+      aria-hidden={!visible}
+    >
+      <div className="absolute inset-0 bg-[linear-gradient(110deg,transparent,rgba(255,255,255,0.08),transparent)]" />
+      <div className="absolute -left-16 top-8 h-px w-2/3 rotate-[-18deg] bg-brass/45" />
+      <div className="absolute bottom-10 right-0 h-px w-1/2 rotate-[-18deg] bg-white/15" />
+      <div className={`absolute inset-x-5 ${fullscreen ? "top-1/2 -translate-y-1/2 text-center" : "top-1/2 -translate-y-1/2"}`}>
+        <p className="text-xs font-semibold uppercase tracking-[0.24em] text-brass">{category}</p>
+        <p className={`${fullscreen ? "text-5xl sm:text-7xl" : variant === "card" ? "text-3xl" : "text-5xl sm:text-7xl"} mt-3 font-serif leading-none text-white`}>
+          {title}
+        </p>
+        <p className="mx-auto mt-3 max-w-xl text-sm uppercase tracking-[0.16em] text-ivory/55">{caption}</p>
+      </div>
+    </div>
   );
 }
