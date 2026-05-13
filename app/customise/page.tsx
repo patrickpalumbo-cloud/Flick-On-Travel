@@ -101,7 +101,7 @@ export default function CustomisePage() {
           onExperienceRemove={removeExperience}
         />
 
-        <section className="mt-10 border border-white/10 bg-white/[0.04] p-5 sm:p-6">
+        <section className="mt-10 border-y border-white/10 py-6">
           <div className="flex flex-col justify-between gap-4 border-b border-white/10 pb-5 md:flex-row md:items-end">
             <div>
               <p className="text-sm font-semibold uppercase tracking-[0.22em] text-brass">Experience library</p>
@@ -112,13 +112,13 @@ export default function CustomisePage() {
 
           <div className="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {availableExperiences.map((experience) => (
-              <article key={experience.id} className="border border-white/10 bg-ink p-5">
+              <article key={experience.id} className="border border-white/10 bg-ink p-5 transition duration-300 hover:-translate-y-1 hover:border-brass/50">
                 <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brass">{experience.eyebrow}</p>
                 <h3 className="mt-3 text-xl font-semibold text-white">{experience.title}</h3>
                 <p className="mt-2 text-sm text-ivory/52">{cityName(experience.cityId, cityPool)} · {experience.category}</p>
                 <p className="mt-4 min-h-20 text-sm leading-6 text-ivory/66">{experience.description}</p>
                 <button
-                  className="focus-ring mt-5 inline-flex min-h-10 items-center gap-2 rounded-sm bg-ivory px-4 text-sm font-semibold text-ink"
+                  className="focus-ring mt-5 inline-flex min-h-10 items-center gap-2 rounded-sm bg-ivory px-4 text-sm font-semibold text-ink transition duration-300 hover:bg-white"
                   onClick={() => addExperience(experience)}
                 >
                   <Plus size={15} aria-hidden="true" />
@@ -152,7 +152,7 @@ function cityName(cityId: string, cityPool: City[]) {
 
 function BuilderStat({ icon: Icon, label, value }: { icon: LucideIcon; label: string; value: string }) {
   return (
-    <div className="border border-white/10 bg-white/[0.04] p-5">
+    <div className="premium-panel p-5">
       <Icon className="text-brass" size={19} aria-hidden="true" />
       <p className="mt-4 text-sm text-ivory/52">{label}</p>
       <p className="mt-1 text-3xl font-semibold text-white">{value}</p>

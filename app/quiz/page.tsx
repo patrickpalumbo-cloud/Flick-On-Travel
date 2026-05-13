@@ -90,18 +90,19 @@ export default function QuizPage() {
 
   return (
     <TripShell>
-      <section className="mx-auto grid min-h-screen max-w-7xl gap-8 px-4 pb-10 pt-28 sm:px-6 lg:grid-cols-[0.95fr_1.05fr] lg:px-8">
+      <section className="mx-auto grid min-h-screen max-w-7xl gap-8 px-4 pb-10 pt-24 sm:px-6 sm:pt-28 lg:grid-cols-[0.95fr_1.05fr] lg:px-8">
         <div className="flex flex-col justify-center">
           <p className="text-sm font-semibold uppercase tracking-[0.22em] text-brass">Trip quiz</p>
           <h1 className="mt-4 font-serif text-4xl leading-tight text-white sm:text-6xl">Swipe into the right kind of escape.</h1>
           <p className="mt-5 max-w-xl text-lg leading-8 text-ivory/72">Pick fast. The route can be customised after the first recommendation.</p>
-          <div className="mt-8 h-1 bg-white/10">
+          <div className="mt-8 h-1 overflow-hidden bg-white/10">
             <div className="h-full bg-brass transition-all" style={{ width: `${progress}%` }} />
           </div>
+          <p className="mt-3 text-xs uppercase tracking-[0.2em] text-ivory/45">Step {stepIndex + 1} of {steps.length}</p>
         </div>
 
-        <div className="self-center border border-white/10 bg-white/[0.04] p-4 shadow-lounge sm:p-6">
-          <div className="min-h-[430px] bg-ivory p-5 text-ink sm:p-8">
+        <div className="premium-panel self-center p-3 sm:p-5">
+          <div className="min-h-[430px] bg-ivory p-5 text-ink shadow-[inset_0_1px_rgba(255,255,255,0.35)] sm:p-8">
             {step === "region" ? (
               <Panel title="Where should we point the lounge pass?">
                 <OptionGrid
@@ -185,7 +186,7 @@ export default function QuizPage() {
               </Panel>
             ) : null}
 
-            <div className="mt-8 border-t border-black/10 pt-5">
+            <div className="mt-8 border-t border-black/10 bg-black/[0.035] p-4">
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-black/50">Live route preview</p>
               <p className="mt-3 text-xl font-semibold">{preview.cities.map((city) => city.name).join("  /  ")}</p>
               <p className="mt-2 text-sm text-black/48">
@@ -196,14 +197,14 @@ export default function QuizPage() {
 
           <div className="mt-4 flex items-center justify-between">
             <button
-              className="focus-ring inline-flex min-h-11 items-center gap-2 rounded-sm border border-white/15 px-4 text-sm text-ivory disabled:opacity-40"
+              className="focus-ring inline-flex min-h-11 items-center gap-2 rounded-sm border border-white/15 bg-black/10 px-4 text-sm text-ivory transition hover:border-brass/70 disabled:opacity-40"
               disabled={stepIndex === 0}
               onClick={() => setStepIndex(stepIndex - 1)}
             >
               <ArrowLeft size={16} aria-hidden="true" />
               Back
             </button>
-            <button className="focus-ring inline-flex min-h-11 items-center gap-2 rounded-sm bg-ivory px-5 text-sm font-semibold text-ink" onClick={next}>
+            <button className="focus-ring inline-flex min-h-11 items-center gap-2 rounded-sm bg-ivory px-5 text-sm font-semibold text-ink transition duration-300 hover:-translate-y-0.5 hover:bg-white" onClick={next}>
               {stepIndex === steps.length - 1 ? "Generate itinerary" : "Next"}
               <ArrowRight size={16} aria-hidden="true" />
             </button>
@@ -246,8 +247,8 @@ function OptionGrid<T extends string>({
           <button
             key={item}
             onClick={() => onSelect(item)}
-            className={`focus-ring flex min-h-16 items-center justify-between rounded-sm border px-4 text-left text-sm font-semibold transition ${
-              active ? "border-black bg-black text-white" : "border-black/15 bg-white text-black hover:border-black/50"
+            className={`focus-ring flex min-h-16 items-center justify-between rounded-sm border px-4 text-left text-sm font-semibold transition duration-300 hover:-translate-y-0.5 ${
+              active ? "border-black bg-black text-white shadow-[0_18px_40px_rgba(0,0,0,0.18)]" : "border-black/15 bg-white text-black hover:border-black/50"
             }`}
           >
             {item}
@@ -329,7 +330,7 @@ function SwipeDeck<T extends City | Experience>({
 
   return (
     <div>
-      <div className="relative mx-auto h-[360px] max-w-md">
+      <div className="relative mx-auto h-[380px] max-w-md touch-pan-y">
         {items.slice(index, index + 3).reverse().map((item, stackedIndex, stack) => {
           const isTop = item.id === current.id;
           const depth = stack.length - stackedIndex - 1;
@@ -338,7 +339,7 @@ function SwipeDeck<T extends City | Experience>({
               key={item.id}
               onPointerDown={isTop ? startDrag : undefined}
               onPointerUp={isTop ? finishDrag : undefined}
-              className={`absolute inset-0 flex flex-col justify-between overflow-hidden rounded-sm border border-white/10 bg-ink p-6 text-white shadow-lounge transition duration-150 ${
+              className={`absolute inset-0 flex flex-col justify-between overflow-hidden rounded-sm border border-white/10 bg-ink p-6 text-white shadow-lounge transition duration-200 ${
                 isTop && motion === "right" ? "translate-x-16 rotate-6 opacity-0" : ""
               } ${isTop && motion === "left" ? "-translate-x-16 -rotate-6 opacity-0" : ""}`}
               style={{ transform: isTop ? undefined : `translateY(${depth * 10}px) scale(${1 - depth * 0.035})`, zIndex: 10 - depth }}
@@ -349,14 +350,14 @@ function SwipeDeck<T extends City | Experience>({
                 <button
                   aria-label={`Pass on ${kind}`}
                   onClick={() => decide(false)}
-                  className="focus-ring flex h-14 w-14 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white transition hover:bg-white hover:text-ink"
+                  className="focus-ring flex h-14 w-14 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white transition duration-300 hover:scale-105 hover:bg-white hover:text-ink"
                 >
                   <X size={22} aria-hidden="true" />
                 </button>
                 <button
                   aria-label={`Like ${kind}`}
                   onClick={() => decide(true)}
-                  className="focus-ring flex h-14 w-14 items-center justify-center rounded-full bg-brass text-ink transition hover:bg-white"
+                  className="focus-ring flex h-14 w-14 items-center justify-center rounded-full bg-brass text-ink transition duration-300 hover:scale-105 hover:bg-white"
                 >
                   <Heart size={22} aria-hidden="true" />
                 </button>

@@ -27,14 +27,14 @@ export function ItineraryView({ itinerary, editable = false, cityOptions = [], o
 
       <section className="grid gap-4 lg:grid-cols-3">
         {itinerary.cities.map((city, index) => (
-          <article key={city.id} className="border border-white/10 bg-white/[0.04] p-5">
+          <article key={city.id} className="premium-panel p-5 transition duration-300 hover:-translate-y-1">
             <div className="flex items-start justify-between gap-4">
               <div>
                 <p className="text-sm text-brass">Stop {index + 1}</p>
                 <h2 className="mt-2 text-2xl font-semibold text-white">{city.name}</h2>
                 <p className="text-sm text-ivory/55">{city.country}</p>
               </div>
-              <span className="border border-white/10 px-3 py-1 text-sm text-ivory/75">{city.nights} nights</span>
+              <span className="border border-white/10 bg-black/30 px-3 py-1 text-sm text-ivory/75">{city.nights} nights</span>
             </div>
             <p className="mt-5 min-h-20 leading-7 text-ivory/72">{city.headline}</p>
             {selectedExperiences.filter((experience) => experience.cityId === city.id).length ? (
@@ -43,7 +43,7 @@ export function ItineraryView({ itinerary, editable = false, cityOptions = [], o
                 {selectedExperiences
                   .filter((experience) => experience.cityId === city.id)
                   .map((experience) => (
-                    <div key={experience.id} className="flex items-start justify-between gap-3 bg-white/[0.05] p-3">
+                    <div key={experience.id} className="flex items-start justify-between gap-3 border border-white/10 bg-black/25 p-3">
                       <div>
                         <p className="text-sm font-semibold text-white">{experience.title}</p>
                         <p className="mt-1 text-xs text-ivory/52">{experience.category} · {experience.eyebrow}</p>
@@ -74,7 +74,7 @@ export function ItineraryView({ itinerary, editable = false, cityOptions = [], o
                 <label className="grid gap-2 text-sm text-ivory/70">
                   Destination
                   <select
-                    className="focus-ring h-10 rounded-sm border border-white/15 bg-white px-3 text-ink"
+                    className="focus-ring h-11 rounded-sm border border-white/15 bg-white px-3 text-ink"
                     value={city.id}
                     onChange={(event) => onDestinationChange?.(city.id, event.target.value)}
                   >
@@ -90,14 +90,14 @@ export function ItineraryView({ itinerary, editable = false, cityOptions = [], o
                   </select>
                 </label>
                 <div className="flex items-center gap-3">
-                  <button className="focus-ring inline-flex min-h-10 items-center gap-2 rounded-sm border border-white/15 px-3 text-sm" onClick={() => onSwap?.(city.id)}>
+                  <button className="focus-ring inline-flex min-h-11 items-center gap-2 rounded-sm border border-white/15 bg-black/20 px-3 text-sm transition hover:border-brass/70" onClick={() => onSwap?.(city.id)}>
                     <Repeat2 size={15} aria-hidden="true" />
                     Swap
                   </button>
                   <label className="flex items-center gap-2 text-sm text-ivory/70">
                     Nights
                     <input
-                      className="focus-ring h-10 w-16 rounded-sm border border-white/15 bg-white px-2 text-center text-ink"
+                      className="focus-ring h-11 w-16 rounded-sm border border-white/15 bg-white px-2 text-center text-ink"
                       type="number"
                       min={1}
                       max={7}
@@ -121,7 +121,7 @@ export function ItineraryView({ itinerary, editable = false, cityOptions = [], o
           <div className="grid gap-4 md:grid-cols-2">
             {itinerary.cities.flatMap((city) =>
               city.hotels.slice(0, 1).map((hotel) => (
-                <article key={`${city.id}-${hotel.name}`} className="border border-white/10 bg-ivory p-5 text-ink">
+                <article key={`${city.id}-${hotel.name}`} className="border border-white/10 bg-ivory p-5 text-ink shadow-[0_20px_60px_rgba(0,0,0,0.2)] transition duration-300 hover:-translate-y-1">
                   <p className="text-xs font-semibold uppercase tracking-[0.18em] text-black/48">{city.name}</p>
                   <h3 className="mt-3 text-xl font-semibold">{hotel.name}</h3>
                   <p className="mt-1 text-sm text-black/52">{hotel.tier}</p>
@@ -140,7 +140,7 @@ export function ItineraryView({ itinerary, editable = false, cityOptions = [], o
           </div>
           <div className="grid gap-3">
             {itinerary.transport.map((option) => (
-              <article key={`${option.from}-${option.to}`} className="border border-white/10 bg-white/[0.04] p-5">
+              <article key={`${option.from}-${option.to}`} className="premium-panel p-5">
                 <p className="font-semibold text-white">{option.from} to {option.to}</p>
                 <p className="mt-2 text-sm text-brass">{option.mode} · {option.duration}</p>
                 <p className="mt-3 text-sm leading-6 text-ivory/65">{option.note}</p>
@@ -150,7 +150,7 @@ export function ItineraryView({ itinerary, editable = false, cityOptions = [], o
         </div>
       </section>
 
-      <section className="flex flex-col justify-between gap-4 border border-brass/40 bg-brass px-5 py-6 text-ink md:flex-row md:items-center">
+      <section className="flex flex-col justify-between gap-4 border border-brass/40 bg-brass px-5 py-6 text-ink shadow-[0_24px_90px_rgba(184,150,87,0.18)] md:flex-row md:items-center">
         <div>
           <h2 className="text-2xl font-semibold">Optimise this trip with points</h2>
           <p className="mt-2 text-black/68">Send your route for cabin, hotel and transfer-partner strategy.</p>
