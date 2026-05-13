@@ -93,6 +93,24 @@ const guideDetails: Record<string, Omit<DestinationGuide, "city" | "experiences"
     nightlife: ["High-floor cocktail rooms", "Chef-led casino dining", "Late-night lounge tables"],
     localExperiences: ["Desert golf tee time", "Spa recovery tower", "Private transfer to canyon viewpoints"],
     itinerarySuggestions: ["2 nights: arena or race weekend", "3 nights: add golf and spa", "4 nights: desert recovery extension"]
+  },
+  niseko: {
+    image: "/terminal-brand.jpg",
+    imageAlt: "Cinematic premium travel scene for Niseko ski travel",
+    bestTime: "December to February for peak powder, March for softer spring skiing, and summer for golf and alpine wellness.",
+    events: ["Powder ski season", "Private guide days", "Summer golf windows"],
+    nightlife: ["Hirafu sake bars", "Fireplace lodge lounges", "Chef-led izakaya dinners"],
+    localExperiences: ["Onsen recovery ritual", "Private ski guide morning", "Sapporo dining extension"],
+    itinerarySuggestions: ["4 nights: powder, onsen and dining", "6 nights: add Sapporo and Lake Toya", "3 nights: alpine reset sprint"]
+  },
+  aspen: {
+    image: "/lounge-hero.jpg",
+    imageAlt: "Cinematic luxury lounge scene for Aspen mountain travel",
+    bestTime: "December to March for skiing, June to September for mountain festivals and golf, and January for peak apres atmosphere.",
+    events: ["Winter ski season", "Mountain festival weekends", "Summer golf and culture calendar"],
+    nightlife: ["Champagne apres tables", "Fireplace hotel bars", "Private dining rooms near the gondola"],
+    localExperiences: ["Private ski day", "Gallery and design walk", "Fireside tasting menu"],
+    itinerarySuggestions: ["4 nights: ski, apres and gallery time", "5 nights: add Snowmass and spa recovery", "3 nights: luxury mountain sprint"]
   }
 };
 

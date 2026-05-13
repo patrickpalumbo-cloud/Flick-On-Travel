@@ -1,7 +1,7 @@
 export type Region = "Europe" | "Asia-Pacific" | "North America";
 export type Budget = "Essential" | "Elevated" | "First Class";
 export type Interest = "Dining" | "Wellness" | "Nightlife" | "Culture" | "Coast";
-export type Sport = "Formula 1" | "Tennis" | "Football" | "Golf" | "Basketball";
+export type Sport = "Formula 1" | "Tennis" | "Football" | "Golf" | "Basketball" | "Skiing";
 export type TravelStyle = "Lounge-led" | "Event-first" | "Slow luxury" | "City sprint";
 
 export type TripPreferences = {
@@ -63,7 +63,7 @@ export type Experience = {
 export const regions: Region[] = ["Europe", "Asia-Pacific", "North America"];
 export const budgets: Budget[] = ["Essential", "Elevated", "First Class"];
 export const interests: Interest[] = ["Dining", "Wellness", "Nightlife", "Culture", "Coast"];
-export const sports: Sport[] = ["Formula 1", "Tennis", "Football", "Golf", "Basketball"];
+export const sports: Sport[] = ["Formula 1", "Tennis", "Football", "Golf", "Basketball", "Skiing"];
 export const travelStyles: TravelStyle[] = ["Lounge-led", "Event-first", "Slow luxury", "City sprint"];
 
 export const experiences: Experience[] = [
@@ -138,6 +138,22 @@ export const experiences: Experience[] = [
     category: "Golf",
     eyebrow: "High-gloss weekend",
     description: "A morning tee time, spa recovery and night-race or arena energy."
+  },
+  {
+    id: "niseko-powder",
+    title: "Niseko powder and onsen reset",
+    cityId: "niseko",
+    category: "Skiing",
+    eyebrow: "Alpine luxury",
+    description: "Deep powder mornings, private transfers and an onsen recovery ritual."
+  },
+  {
+    id: "aspen-apres",
+    title: "Aspen slopes and apres table",
+    cityId: "aspen",
+    category: "Skiing",
+    eyebrow: "Mountain icon",
+    description: "A polished ski day with champagne apres and a fireplace dinner."
   }
 ];
 
@@ -275,6 +291,36 @@ export const cities: City[] = [
     hotels: [
       { name: "The Strip Salon", tier: "Icon", note: "Statement rooms at the center of the action.", pointsHint: "Compare partner awards versus cash packages." },
       { name: "Desert Spa Tower", tier: "Wellness", note: "A quieter luxury reset with pool time.", pointsHint: "Good for annual travel credit use." }
+    ]
+  },
+  {
+    id: "niseko",
+    name: "Niseko",
+    country: "Japan",
+    region: "Asia-Pacific",
+    nights: 4,
+    tags: ["Wellness", "Dining", "Culture"],
+    sports: ["Skiing", "Golf"],
+    headline: "Powder mornings, onsen recovery and Japanese dining with a private-lodge rhythm.",
+    activities: ["Private ski guide morning", "Onsen recovery ritual", "Sapporo dining extension"],
+    hotels: [
+      { name: "Hirafu Alpine House", tier: "Lodge luxury", note: "Fireplace suites close to lifts and dining.", pointsHint: "Watch seasonal cash rates and luxury portal credits." },
+      { name: "Annupuri Snow Residence", tier: "Wellness", note: "Quieter onsen-led base for slower alpine stays.", pointsHint: "Best for flexible award-adjacent cash stays." }
+    ]
+  },
+  {
+    id: "aspen",
+    name: "Aspen",
+    country: "United States",
+    region: "North America",
+    nights: 4,
+    tags: ["Wellness", "Dining", "Nightlife", "Culture"],
+    sports: ["Skiing", "Golf"],
+    headline: "Iconic mountain luxury with slopes, galleries, fireplace dining and champagne apres.",
+    activities: ["Private ski day", "Apres reservation map", "Gallery and fireside dinner route"],
+    hotels: [
+      { name: "Ajax Club Lodge", tier: "Icon", note: "Slope-adjacent rooms with classic mountain service.", pointsHint: "Strong target for luxury program perks." },
+      { name: "West End Alpine Suites", tier: "Boutique", note: "Quiet residential feel near dining and galleries.", pointsHint: "Compare premium cash rates with statement credits." }
     ]
   }
 ];
