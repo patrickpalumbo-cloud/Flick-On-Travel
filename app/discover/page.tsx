@@ -1,10 +1,10 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Check, SlidersHorizontal, Sparkles } from "lucide-react";
 import { useMemo, useState } from "react";
 import { TripShell } from "@/components/trip-shell";
+import { DestinationGallery } from "@/components/destination-gallery";
 import { discoveryInterests, recommendDestinations, type DiscoveryInterest } from "@/lib/destination-discovery";
 import { getDestinationGuide } from "@/lib/destination-guides";
 
@@ -80,17 +80,16 @@ export default function DiscoverPage() {
             return (
               <article key={recommendation.city.id} className="premium-panel overflow-hidden">
                 <div className="grid gap-0 lg:grid-cols-[0.48fr_0.52fr]">
-                  <div className="relative min-h-72">
-                    {guide ? <Image src={guide.image} alt={guide.imageAlt} fill className="object-cover" /> : null}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/25 to-transparent" />
-                    <div className="absolute bottom-5 left-5 right-5">
-                      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brass">Recommendation {index + 1}</p>
-                      <h2 className="mt-2 font-serif text-5xl text-white">{recommendation.city.name}</h2>
-                      <p className="mt-1 text-sm text-ivory/62">{recommendation.city.country} · {recommendation.city.region}</p>
-                    </div>
+                  <div>
+                    {guide ? (
+                      <DestinationGallery images={guide.gallery} title={`${recommendation.city.name} · Recommendation ${index + 1}`} variant="card" />
+                    ) : null}
                   </div>
 
                   <div className="p-5 sm:p-6">
+                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brass">Recommendation {index + 1}</p>
+                    <h2 className="mt-2 font-serif text-5xl text-white">{recommendation.city.name}</h2>
+                    <p className="mt-1 text-sm text-ivory/62">{recommendation.city.country} · {recommendation.city.region}</p>
                     <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
                       <div>
                         <p className="text-sm text-brass">Curated for {labelFor(recommendation.strongestInterest)}</p>

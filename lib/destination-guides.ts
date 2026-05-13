@@ -4,6 +4,7 @@ export type DestinationGuide = {
   city: City;
   image: string;
   imageAlt: string;
+  gallery: DestinationImage[];
   bestTime: string;
   events: string[];
   nightlife: string[];
@@ -12,7 +13,30 @@ export type DestinationGuide = {
   experiences: Experience[];
 };
 
-const guideDetails: Record<string, Omit<DestinationGuide, "city" | "experiences">> = {
+export type DestinationImage = {
+  src: string;
+  alt: string;
+  category: "Sports" | "Nightlife" | "Food" | "Luxury" | "Landscape" | "Culture" | "Wellness";
+  caption: string;
+};
+
+const galleryThemes: Record<string, string[]> = {
+  melbourne: ["melbourne tennis stadium", "melbourne laneway bar", "melbourne fine dining", "melbourne luxury hotel", "melbourne skyline yarra", "melbourne coffee culture", "melbourne grand prix"],
+  singapore: ["singapore formula 1 night", "singapore rooftop bar", "singapore hawker food", "singapore luxury hotel", "singapore marina bay skyline", "singapore gardens by the bay", "singapore airport lounge"],
+  tokyo: ["tokyo sports arena", "tokyo cocktail bar", "tokyo omakase sushi", "tokyo luxury hotel", "tokyo skyline night", "tokyo street culture", "japanese onsen luxury"],
+  london: ["london football stadium", "london soho nightlife", "london fine dining", "london luxury hotel", "london skyline thames", "london gallery interior", "wimbledon tennis"],
+  monaco: ["monaco grand prix", "monaco harbor nightlife", "monaco fine dining", "monaco luxury hotel", "monaco riviera coastline", "monte carlo casino", "monaco yacht club"],
+  paris: ["roland garros paris", "paris cocktail bar", "paris michelin dining", "paris palace hotel", "paris seine skyline", "paris art gallery", "paris cafe luxury"],
+  "new-york": ["new york tennis stadium", "new york rooftop bar", "new york fine dining", "new york luxury hotel", "new york skyline", "new york museum", "madison square garden"],
+  miami: ["miami formula 1", "miami beach nightlife", "miami fine dining", "miami luxury resort", "miami beach aerial", "miami design district", "miami tennis"],
+  "las-vegas": ["las vegas grand prix", "las vegas nightlife", "las vegas fine dining", "las vegas luxury hotel", "las vegas desert landscape", "las vegas spa", "las vegas arena"],
+  niseko: ["niseko skiing powder", "niseko apres ski bar", "niseko japanese dining", "niseko luxury chalet", "niseko mountain landscape", "niseko onsen", "niseko family ski"],
+  aspen: ["aspen skiing", "aspen apres ski", "aspen fine dining", "aspen luxury hotel", "aspen mountain landscape", "aspen gallery", "aspen family ski"]
+};
+
+const galleryCategories: DestinationImage["category"][] = ["Sports", "Nightlife", "Food", "Luxury", "Landscape", "Culture", "Wellness"];
+
+const guideDetails: Record<string, Omit<DestinationGuide, "city" | "experiences" | "gallery">> = {
   melbourne: {
     image: "/terminal-brand.jpg",
     imageAlt: "Cinematic luxury terminal scene for Melbourne sports travel",
@@ -126,6 +150,21 @@ export function getDestinationGuide(id: string): DestinationGuide | undefined {
   return {
     city,
     ...details,
+    gallery: buildGallery(city.id, city.name),
     experiences: experiences.filter((experience) => experience.cityId === id)
   };
+}
+
+function buildGallery(cityId: string, cityName: string): DestinationImage[] {
+  const themes = galleryThemes[cityId] ?? [cityName, `${cityName} nightlife`, `${cityName} food`, `${cityName} luxury hotel`, `${cityName} landscape`];
+
+  return themes.map((theme, index) => ({
+    src: `https://source.unsplash.com/1800x1200/?${encodeURIComponent(theme)}&sig=${cityId}-${index}`,
+    alt: `${cityName} ${galleryCategories[index % galleryCategories.length].toLowerCase()} cinematic travel imagery`,
+    category: galleryCategories[index % galleryCategories.length],
+    caption: theme
+      .split(" ")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ")
+  }));
 }

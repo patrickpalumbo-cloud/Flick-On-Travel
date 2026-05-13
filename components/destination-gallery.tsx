@@ -1,0 +1,132 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { ChevronLeft, ChevronRight, Maximize2, X } from "lucide-react";
+import type { DestinationImage } from "@/lib/destination-guides";
+
+type DestinationGalleryProps = {
+  images: DestinationImage[];
+  title: string;
+  variant?: "card" | "immersive";
+};
+
+export function DestinationGallery({ images, title, variant = "immersive" }: DestinationGalleryProps) {
+  const [index, setIndex] = useState(0);
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [fullscreen, setFullscreen] = useState(false);
+  const activeImage = images[index];
+
+  useEffect(() => {
+    if (!fullscreen) return;
+
+    function closeOnEscape(event: KeyboardEvent) {
+      if (event.key === "Escape") setFullscreen(false);
+    }
+
+    window.addEventListener("keydown", closeOnEscape);
+    return () => window.removeEventListener("keydown", closeOnEscape);
+  }, [fullscreen]);
+
+  function move(direction: number) {
+    setIndex((current) => (current + direction + images.length) % images.length);
+  }
+
+  function handleTouchEnd(clientX: number) {
+    if (touchStart === null) return;
+    const delta = clientX - touchStart;
+    setTouchStart(null);
+    if (Math.abs(delta) < 48) return;
+    move(delta > 0 ? -1 : 1);
+  }
+
+  if (!activeImage) return null;
+
+  const height = variant === "card" ? "h-64" : "h-[72vh] min-h-[520px]";
+
+  return (
+    <>
+      <div
+        className={`group relative overflow-hidden ${height} touch-pan-y bg-black`}
+        onTouchStart={(event) => setTouchStart(event.touches[0]?.clientX ?? null)}
+        onTouchEnd={(event) => {
+          const touch = event.changedTouches[0];
+          if (touch) handleTouchEnd(touch.clientX);
+        }}
+      >
+        {images.map((image, imageIndex) => (
+          <img
+            key={image.src}
+            src={image.src}
+            alt={image.alt}
+            className={`absolute inset-0 h-full w-full object-cover transition duration-700 ${
+              imageIndex === index ? "scale-100 opacity-100" : "scale-105 opacity-0"
+            }`}
+          />
+        ))}
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-transparent to-black/20" />
+
+        <div className="absolute left-4 top-4 flex items-center gap-2">
+          <span className="border border-brass/50 bg-black/45 px-3 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-brass backdrop-blur">
+            {activeImage.category}
+          </span>
+          <span className="hidden border border-white/15 bg-black/35 px-3 py-2 text-xs text-ivory/70 backdrop-blur sm:inline-flex">
+            {index + 1} / {images.length}
+          </span>
+        </div>
+
+        <div className="absolute bottom-4 left-4 right-4">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brass">{title}</p>
+          <h3 className={`${variant === "card" ? "text-3xl" : "text-5xl sm:text-7xl"} mt-2 font-serif leading-none text-white`}>
+            {activeImage.caption}
+          </h3>
+        </div>
+
+        <div className="absolute right-4 top-4 flex gap-2">
+          <button className="focus-ring flex h-10 w-10 items-center justify-center border border-white/15 bg-black/40 text-white backdrop-blur transition hover:bg-white hover:text-ink" onClick={() => setFullscreen(true)} aria-label={`View ${title} gallery fullscreen`}>
+            <Maximize2 size={17} aria-hidden="true" />
+          </button>
+        </div>
+
+        <div className="absolute bottom-4 right-4 hidden gap-2 sm:flex">
+          <button className="focus-ring flex h-11 w-11 items-center justify-center rounded-full border border-white/15 bg-black/45 text-white backdrop-blur transition hover:bg-white hover:text-ink" onClick={() => move(-1)} aria-label="Previous image">
+            <ChevronLeft size={20} aria-hidden="true" />
+          </button>
+          <button className="focus-ring flex h-11 w-11 items-center justify-center rounded-full border border-white/15 bg-black/45 text-white backdrop-blur transition hover:bg-white hover:text-ink" onClick={() => move(1)} aria-label="Next image">
+            <ChevronRight size={20} aria-hidden="true" />
+          </button>
+        </div>
+
+        <div className="absolute inset-x-4 bottom-0 flex translate-y-1/2 gap-1">
+          {images.map((image, imageIndex) => (
+            <button
+              key={image.src}
+              onClick={() => setIndex(imageIndex)}
+              className={`focus-ring h-1 flex-1 rounded-full transition ${imageIndex === index ? "bg-brass" : "bg-white/25 hover:bg-white/50"}`}
+              aria-label={`Open ${image.category} image`}
+            />
+          ))}
+        </div>
+      </div>
+
+      {fullscreen ? (
+        <div className="fixed inset-0 z-[80] bg-black">
+          <img src={activeImage.src} alt={activeImage.alt} className="h-full w-full object-contain" />
+          <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black via-black/70 to-transparent p-4 sm:p-6">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brass">{activeImage.category}</p>
+            <h2 className="mt-2 font-serif text-4xl text-white sm:text-6xl">{activeImage.caption}</h2>
+          </div>
+          <button className="focus-ring absolute right-4 top-4 flex h-11 w-11 items-center justify-center border border-white/15 bg-black/50 text-white backdrop-blur transition hover:bg-white hover:text-ink" onClick={() => setFullscreen(false)} aria-label="Close fullscreen gallery">
+            <X size={20} aria-hidden="true" />
+          </button>
+          <button className="focus-ring absolute left-4 top-1/2 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-white/15 bg-black/50 text-white backdrop-blur transition hover:bg-white hover:text-ink" onClick={() => move(-1)} aria-label="Previous fullscreen image">
+            <ChevronLeft size={22} aria-hidden="true" />
+          </button>
+          <button className="focus-ring absolute right-4 top-1/2 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-white/15 bg-black/50 text-white backdrop-blur transition hover:bg-white hover:text-ink" onClick={() => move(1)} aria-label="Next fullscreen image">
+            <ChevronRight size={22} aria-hidden="true" />
+          </button>
+        </div>
+      ) : null}
+    </>
+  );
+}

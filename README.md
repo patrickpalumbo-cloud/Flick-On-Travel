@@ -14,7 +14,7 @@ A responsive MVP web app for premium sports, points and experience-based travel 
 - Premium landing page
 - Swipe-style quiz with destination and experience decks
 - Smart destination discovery for sports, nightlife, luxury, beaches, skiing and family travel
-- Immersive destination pages with cinematic imagery, sports/events, hotels, nightlife and itinerary ideas
+- Immersive destination pages with cinematic galleries, sports/events, hotels, nightlife and itinerary ideas
 - Recommended itinerary generated from preloaded city data
 - Premium concierge itinerary builder with timeline layout, drag-and-drop destinations, animated route map, nights controls and add/remove experiences
 - Luxury airline-inspired UI with cinematic imagery, black/white styling and subtle motion

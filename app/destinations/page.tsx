@@ -1,7 +1,7 @@
-import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, CalendarDays, Trophy } from "lucide-react";
 import { TripShell } from "@/components/trip-shell";
+import { DestinationGallery } from "@/components/destination-gallery";
 import { getDestinationGuides } from "@/lib/destination-guides";
 
 export default function DestinationsPage() {
@@ -22,20 +22,14 @@ export default function DestinationsPage() {
 
         <div className="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
           {guides.map((guide) => (
-            <Link
+            <article
               key={guide.city.id}
-              href={`/destinations/${guide.city.id}`}
-              className="group premium-panel min-h-[430px] overflow-hidden transition duration-300 hover:-translate-y-1"
+              className="premium-panel min-h-[520px] overflow-hidden transition duration-300 hover:-translate-y-1"
             >
-              <div className="relative h-56 overflow-hidden">
-                <Image src={guide.image} alt={guide.imageAlt} fill className="object-cover transition duration-700 group-hover:scale-105" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent" />
-                <div className="absolute bottom-4 left-4 right-4">
-                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brass">{guide.city.country}</p>
-                  <h2 className="mt-2 font-serif text-4xl text-white">{guide.city.name}</h2>
-                </div>
-              </div>
+              <DestinationGallery images={guide.gallery} title={guide.city.name} variant="card" />
               <div className="p-5">
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brass">{guide.city.country}</p>
+                <h2 className="mt-2 font-serif text-4xl text-white">{guide.city.name}</h2>
                 <p className="min-h-16 leading-7 text-ivory/70">{guide.city.headline}</p>
                 <div className="mt-5 grid gap-3 text-sm text-ivory/62">
                   <p className="flex gap-2">
@@ -47,11 +41,11 @@ export default function DestinationsPage() {
                     {guide.events.slice(0, 2).join(" · ")}
                   </p>
                 </div>
-                <span className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-white">
-                  Explore guide <ArrowRight className="transition group-hover:translate-x-1" size={16} aria-hidden="true" />
-                </span>
+                <Link href={`/destinations/${guide.city.id}`} className="focus-ring mt-6 inline-flex items-center gap-2 rounded-sm text-sm font-semibold text-white">
+                  Explore guide <ArrowRight className="transition" size={16} aria-hidden="true" />
+                </Link>
               </div>
-            </Link>
+            </article>
           ))}
         </div>
       </section>

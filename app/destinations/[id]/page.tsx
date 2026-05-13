@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { ArrowLeft, ArrowRight, CalendarDays, Hotel, MapPinned, Moon, Sparkles, Trophy } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { TripShell } from "@/components/trip-shell";
+import { DestinationGallery } from "@/components/destination-gallery";
 import { getDestinationGuide, getDestinationGuides } from "@/lib/destination-guides";
 
 export function generateStaticParams() {
@@ -52,6 +53,19 @@ export default function DestinationPage({ params }: { params: { id: string } }) 
               </div>
             </div>
           </div>
+        </section>
+
+        <section className="snap-panel mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+          <div className="mb-6 grid gap-4 lg:grid-cols-[0.75fr_1.25fr] lg:items-end">
+            <div>
+              <p className="text-sm font-semibold uppercase tracking-[0.22em] text-brass">Immersive gallery</p>
+              <h2 className="mt-3 font-serif text-4xl text-white sm:text-5xl">See the trip before it exists.</h2>
+            </div>
+            <p className="max-w-2xl text-lg leading-8 text-ivory/68">
+              Sports, nightlife, food, luxury, landscape and local texture, composed as a cinematic destination moodboard.
+            </p>
+          </div>
+          <DestinationGallery images={guide.gallery} title={guide.city.name} />
         </section>
 
         <section className="snap-panel mx-auto grid max-w-7xl gap-6 px-4 py-16 sm:px-6 lg:grid-cols-[0.85fr_1.15fr] lg:px-8">
