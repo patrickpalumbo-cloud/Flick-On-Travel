@@ -121,7 +121,8 @@ const destinationProfiles: DestinationProfile[] = [
 ];
 
 export function recommendDestinations(selected: DiscoveryInterest[]): DestinationRecommendation[] {
-  const active = selected.length ? selected : ["sports", "luxury"];
+  const fallbackInterests: DiscoveryInterest[] = ["sports", "luxury"];
+  const active: DiscoveryInterest[] = selected.length ? selected : fallbackInterests;
   const maxScore = active.length * 10;
 
   return destinationProfiles
