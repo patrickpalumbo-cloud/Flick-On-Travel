@@ -10,6 +10,8 @@ export type TripPreferences = {
   interests: Interest[];
   sports: Sport[];
   style: TravelStyle;
+  destinationLikes: string[];
+  experienceLikes: string[];
   email?: string;
 };
 
@@ -48,11 +50,95 @@ export type TransportOption = {
   note: string;
 };
 
+export type Experience = {
+  id: string;
+  title: string;
+  cityId: string;
+  category: Interest | Sport;
+  eyebrow: string;
+  description: string;
+};
+
 export const regions: Region[] = ["Europe", "Asia-Pacific", "North America"];
 export const budgets: Budget[] = ["Essential", "Elevated", "First Class"];
 export const interests: Interest[] = ["Dining", "Wellness", "Nightlife", "Culture", "Coast"];
 export const sports: Sport[] = ["Formula 1", "Tennis", "Football", "Golf", "Basketball"];
 export const travelStyles: TravelStyle[] = ["Lounge-led", "Event-first", "Slow luxury", "City sprint"];
+
+export const experiences: Experience[] = [
+  {
+    id: "aus-open-night",
+    title: "Australian Open night session",
+    cityId: "melbourne",
+    category: "Tennis",
+    eyebrow: "Courtside energy",
+    description: "A centre-court evening with laneway dining before or after the match."
+  },
+  {
+    id: "singapore-f1",
+    title: "Singapore F1 under lights",
+    cityId: "singapore",
+    category: "Formula 1",
+    eyebrow: "Race weekend",
+    description: "Grandstand or hospitality planning around rooftop swims and Changi lounge time."
+  },
+  {
+    id: "tokyo-omakase",
+    title: "Tokyo omakase circuit",
+    cityId: "tokyo",
+    category: "Dining",
+    eyebrow: "Hard-to-book tables",
+    description: "A precision food route built around trains, hotel location and late checkouts."
+  },
+  {
+    id: "premier-league",
+    title: "Premier League weekend",
+    cityId: "london",
+    category: "Football",
+    eyebrow: "Matchday classic",
+    description: "Fixture-led planning with Mayfair dining and polished transfer windows."
+  },
+  {
+    id: "monaco-harbor",
+    title: "Monaco harbor circuit walk",
+    cityId: "monaco",
+    category: "Formula 1",
+    eyebrow: "Riviera icon",
+    description: "Track atmosphere, yacht-club evenings and coastal recovery time."
+  },
+  {
+    id: "roland-garros",
+    title: "Roland-Garros and palace lunch",
+    cityId: "paris",
+    category: "Tennis",
+    eyebrow: "Grand Slam glamour",
+    description: "Session strategy with Left Bank galleries and a long-table lunch."
+  },
+  {
+    id: "us-open",
+    title: "US Open day-to-night pass",
+    cityId: "new-york",
+    category: "Tennis",
+    eyebrow: "Big city slam",
+    description: "A Queens tennis day with downtown dining and a points-friendly hotel base."
+  },
+  {
+    id: "miami-beach-club",
+    title: "Miami beach club recovery",
+    cityId: "miami",
+    category: "Coast",
+    eyebrow: "Sunlit reset",
+    description: "Pool, beach and Design District dinner between race or arena moments."
+  },
+  {
+    id: "vegas-desert-golf",
+    title: "Vegas desert golf and spa",
+    cityId: "las-vegas",
+    category: "Golf",
+    eyebrow: "High-gloss weekend",
+    description: "A morning tee time, spa recovery and night-race or arena energy."
+  }
+];
 
 export const cities: City[] = [
   {
@@ -198,8 +284,10 @@ export function buildItinerary(preferences: TripPreferences): Itinerary {
     .map((city) => {
       const interestScore = city.tags.filter((tag) => preferences.interests.includes(tag)).length;
       const sportScore = city.sports.filter((sport) => preferences.sports.includes(sport)).length * 2;
+      const destinationScore = preferences.destinationLikes.includes(city.id) ? 4 : 0;
+      const experienceScore = experiences.filter((experience) => experience.cityId === city.id && preferences.experienceLikes.includes(experience.id)).length * 3;
       const paceScore = preferences.style === "City sprint" ? 1 : city.nights >= 3 ? 1 : 0;
-      return { city, score: interestScore + sportScore + paceScore };
+      return { city, score: interestScore + sportScore + destinationScore + experienceScore + paceScore };
     })
     .sort((a, b) => b.score - a.score)
     .map(({ city }) => city);
@@ -237,5 +325,7 @@ export const defaultPreferences: TripPreferences = {
   budget: "Elevated",
   interests: ["Dining", "Culture"],
   sports: ["Tennis", "Football"],
-  style: "Lounge-led"
+  style: "Lounge-led",
+  destinationLikes: [],
+  experienceLikes: []
 };

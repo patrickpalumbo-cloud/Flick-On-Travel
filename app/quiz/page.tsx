@@ -1,14 +1,30 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import type { PointerEvent, ReactNode } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, ArrowRight, Check, Heart } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Heart, RotateCcw, X } from "lucide-react";
 import { TripShell } from "@/components/trip-shell";
-import { budgets, buildItinerary, defaultPreferences, interests, regions, sports, travelStyles, type Interest, type Sport, type TripPreferences } from "@/lib/trip-data";
+import {
+  budgets,
+  buildItinerary,
+  cities,
+  defaultPreferences,
+  experiences,
+  interests,
+  regions,
+  sports,
+  travelStyles,
+  type City,
+  type Experience,
+  type Interest,
+  type Sport,
+  type TripPreferences
+} from "@/lib/trip-data";
 import { writeItinerary, writePreferences } from "@/lib/storage";
 
-type Step = "region" | "budget" | "interests" | "sports" | "style";
-const steps: Step[] = ["region", "budget", "interests", "sports", "style"];
+type Step = "region" | "destinations" | "budget" | "interests" | "experiences" | "sports" | "style";
+const steps: Step[] = ["region", "destinations", "budget", "interests", "experiences", "sports", "style"];
 
 export default function QuizPage() {
   const router = useRouter();
@@ -18,6 +34,11 @@ export default function QuizPage() {
   const progress = Math.round(((stepIndex + 1) / steps.length) * 100);
 
   const preview = useMemo(() => buildItinerary(preferences), [preferences]);
+  const destinationCards = useMemo(() => cities.filter((city) => city.region === preferences.region), [preferences.region]);
+  const experienceCards = useMemo(() => {
+    const regionCityIds = new Set(destinationCards.map((city) => city.id));
+    return experiences.filter((experience) => regionCityIds.has(experience.cityId));
+  }, [destinationCards]);
 
   function toggleInterest(interest: Interest) {
     setPreferences((current) => ({
@@ -31,6 +52,28 @@ export default function QuizPage() {
       ...current,
       sports: current.sports.includes(sport) ? current.sports.filter((item) => item !== sport) : [...current.sports, sport]
     }));
+  }
+
+  function chooseDestination(cityId: string, liked: boolean) {
+    setPreferences((current) => ({
+      ...current,
+      destinationLikes: liked ? Array.from(new Set([...current.destinationLikes, cityId])) : current.destinationLikes.filter((id) => id !== cityId)
+    }));
+  }
+
+  function chooseExperience(experienceId: string, liked: boolean) {
+    setPreferences((current) => ({
+      ...current,
+      experienceLikes: liked ? Array.from(new Set([...current.experienceLikes, experienceId])) : current.experienceLikes.filter((id) => id !== experienceId)
+    }));
+  }
+
+  function resetDestinationLikes() {
+    setPreferences((current) => ({ ...current, destinationLikes: [], experienceLikes: [] }));
+  }
+
+  function resetExperienceLikes() {
+    setPreferences((current) => ({ ...current, experienceLikes: [] }));
   }
 
   function next() {
@@ -61,7 +104,37 @@ export default function QuizPage() {
           <div className="min-h-[430px] bg-ivory p-5 text-ink sm:p-8">
             {step === "region" ? (
               <Panel title="Where should we point the lounge pass?">
-                <OptionGrid items={regions} selected={[preferences.region]} onSelect={(region) => setPreferences({ ...preferences, region })} />
+                <OptionGrid
+                  items={regions}
+                  selected={[preferences.region]}
+                  onSelect={(region) => setPreferences({ ...preferences, region, destinationLikes: [], experienceLikes: [] })}
+                />
+              </Panel>
+            ) : null}
+
+            {step === "destinations" ? (
+              <Panel title="Swipe the destinations that feel like you.">
+                <SwipeDeck
+                  kind="destination"
+                  items={destinationCards}
+                  likedIds={preferences.destinationLikes}
+                  onDecision={chooseDestination}
+                  onReset={resetDestinationLikes}
+                  renderCard={(city) => (
+                    <>
+                      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brass">{city.country}</p>
+                      <h3 className="mt-4 font-serif text-5xl leading-none text-white">{city.name}</h3>
+                      <p className="mt-5 min-h-20 text-base leading-7 text-white/74">{city.headline}</p>
+                      <div className="mt-6 flex flex-wrap gap-2">
+                        {city.sports.slice(0, 3).map((sport) => (
+                          <span key={sport} className="border border-white/15 px-3 py-1 text-xs text-white/78">
+                            {sport}
+                          </span>
+                        ))}
+                      </div>
+                    </>
+                  )}
+                />
               </Panel>
             ) : null}
 
@@ -74,6 +147,29 @@ export default function QuizPage() {
             {step === "interests" ? (
               <Panel title="What should fill the non-event hours?">
                 <OptionGrid items={interests} selected={preferences.interests} onSelect={toggleInterest} multi />
+              </Panel>
+            ) : null}
+
+            {step === "experiences" ? (
+              <Panel title="Swipe the moments worth flying for.">
+                <SwipeDeck
+                  kind="experience"
+                  items={experienceCards}
+                  likedIds={preferences.experienceLikes}
+                  onDecision={chooseExperience}
+                  onReset={resetExperienceLikes}
+                  renderCard={(experience) => (
+                    <>
+                      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brass">{experience.eyebrow}</p>
+                      <h3 className="mt-4 font-serif text-4xl leading-tight text-white">{experience.title}</h3>
+                      <p className="mt-5 min-h-20 text-base leading-7 text-white/74">{experience.description}</p>
+                      <div className="mt-6 flex items-center justify-between border-t border-white/10 pt-5 text-sm text-white/62">
+                        <span>{cityNameForExperience(experience)}</span>
+                        <span>{experience.category}</span>
+                      </div>
+                    </>
+                  )}
+                />
               </Panel>
             ) : null}
 
@@ -92,6 +188,9 @@ export default function QuizPage() {
             <div className="mt-8 border-t border-black/10 pt-5">
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-black/50">Live route preview</p>
               <p className="mt-3 text-xl font-semibold">{preview.cities.map((city) => city.name).join("  /  ")}</p>
+              <p className="mt-2 text-sm text-black/48">
+                {preferences.destinationLikes.length} destinations liked · {preferences.experienceLikes.length} experiences saved
+              </p>
             </div>
           </div>
 
@@ -115,7 +214,11 @@ export default function QuizPage() {
   );
 }
 
-function Panel({ title, children }: { title: string; children: React.ReactNode }) {
+function cityNameForExperience(experience: Experience) {
+  return cities.find((city) => city.id === experience.cityId)?.name ?? "Selected city";
+}
+
+function Panel({ title, children }: { title: string; children: ReactNode }) {
   return (
     <div>
       <Heart size={20} aria-hidden="true" />
@@ -152,6 +255,120 @@ function OptionGrid<T extends string>({
           </button>
         );
       })}
+    </div>
+  );
+}
+
+function SwipeDeck<T extends City | Experience>({
+  items,
+  likedIds,
+  onDecision,
+  onReset,
+  renderCard,
+  kind
+}: {
+  items: T[];
+  likedIds: string[];
+  onDecision: (id: string, liked: boolean) => void;
+  onReset: () => void;
+  renderCard: (item: T) => ReactNode;
+  kind: "destination" | "experience";
+}) {
+  const [index, setIndex] = useState(0);
+  const [motion, setMotion] = useState<"left" | "right" | null>(null);
+  const [dragStart, setDragStart] = useState<number | null>(null);
+  const current = items[index];
+  const remaining = Math.max(items.length - index, 0);
+
+  function decide(liked: boolean) {
+    if (!current) return;
+    setMotion(liked ? "right" : "left");
+    onDecision(current.id, liked);
+    window.setTimeout(() => {
+      setIndex((value) => Math.min(value + 1, items.length));
+      setMotion(null);
+    }, 160);
+  }
+
+  function startDrag(event: PointerEvent<HTMLElement>) {
+    if ((event.target as HTMLElement).closest("button")) return;
+    setDragStart(event.clientX);
+  }
+
+  function finishDrag(event: PointerEvent<HTMLElement>) {
+    if ((event.target as HTMLElement).closest("button") || dragStart === null) return;
+    const delta = event.clientX - dragStart;
+    setDragStart(null);
+    if (Math.abs(delta) < 70) return;
+    decide(delta > 0);
+  }
+
+  function restart() {
+    setIndex(0);
+    setMotion(null);
+    onReset();
+  }
+
+  if (!current) {
+    return (
+      <div className="grid min-h-80 place-items-center border border-black/10 bg-white p-6 text-center">
+        <div>
+          <Check className="mx-auto" size={28} aria-hidden="true" />
+          <h3 className="mt-4 text-2xl font-semibold">Deck complete</h3>
+          <p className="mt-3 max-w-sm leading-7 text-black/58">
+            You saved {likedIds.length} {kind === "destination" ? "destinations" : "experiences"} for the recommendation engine.
+          </p>
+          <button onClick={restart} className="focus-ring mt-6 inline-flex min-h-11 items-center gap-2 rounded-sm border border-black/20 px-4 text-sm font-semibold">
+            <RotateCcw size={16} aria-hidden="true" />
+            Replay deck
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <div className="relative mx-auto h-[360px] max-w-md">
+        {items.slice(index, index + 3).reverse().map((item, stackedIndex, stack) => {
+          const isTop = item.id === current.id;
+          const depth = stack.length - stackedIndex - 1;
+          return (
+            <article
+              key={item.id}
+              onPointerDown={isTop ? startDrag : undefined}
+              onPointerUp={isTop ? finishDrag : undefined}
+              className={`absolute inset-0 flex flex-col justify-between overflow-hidden rounded-sm border border-white/10 bg-ink p-6 text-white shadow-lounge transition duration-150 ${
+                isTop && motion === "right" ? "translate-x-16 rotate-6 opacity-0" : ""
+              } ${isTop && motion === "left" ? "-translate-x-16 -rotate-6 opacity-0" : ""}`}
+              style={{ transform: isTop ? undefined : `translateY(${depth * 10}px) scale(${1 - depth * 0.035})`, zIndex: 10 - depth }}
+            >
+              <div className="absolute inset-x-0 top-0 h-1 bg-brass" />
+              {renderCard(item)}
+              <div className="mt-8 flex justify-center gap-4">
+                <button
+                  aria-label={`Pass on ${kind}`}
+                  onClick={() => decide(false)}
+                  className="focus-ring flex h-14 w-14 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white transition hover:bg-white hover:text-ink"
+                >
+                  <X size={22} aria-hidden="true" />
+                </button>
+                <button
+                  aria-label={`Like ${kind}`}
+                  onClick={() => decide(true)}
+                  className="focus-ring flex h-14 w-14 items-center justify-center rounded-full bg-brass text-ink transition hover:bg-white"
+                >
+                  <Heart size={22} aria-hidden="true" />
+                </button>
+              </div>
+            </article>
+          );
+        })}
+      </div>
+      <div className="mt-5 flex items-center justify-between text-sm text-black/56">
+        <span>{remaining} cards left</span>
+        <span>{likedIds.length} liked</span>
+      </div>
     </div>
   );
 }

@@ -9,6 +9,14 @@ A responsive MVP web app for premium sports, points and experience-based travel 
 - Supabase lead capture
 - Vercel-ready project structure
 
+## MVP flow
+
+- Premium landing page
+- Swipe-style quiz with destination and experience decks
+- Recommended itinerary generated from preloaded city data
+- Custom itinerary editor with city swaps and nights controls
+- Waitlist and points-flight enquiry capture
+
 ## Run locally
 
 ```bash
