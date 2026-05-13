@@ -37,6 +37,12 @@ export function ItineraryView({ itinerary, editable = false, cityOptions = [], o
               <span className="border border-white/10 bg-black/30 px-3 py-1 text-sm text-ivory/75">{city.nights} nights</span>
             </div>
             <p className="mt-5 min-h-20 leading-7 text-ivory/72">{city.headline}</p>
+            <Link
+              href={`/destinations/${city.id}`}
+              className="focus-ring mt-4 inline-flex items-center gap-2 rounded-sm text-sm font-semibold text-brass transition hover:text-white"
+            >
+              Destination guide <ArrowRight size={14} aria-hidden="true" />
+            </Link>
             {selectedExperiences.filter((experience) => experience.cityId === city.id).length ? (
               <div className="mt-5 grid gap-2 border-y border-white/10 py-4">
                 <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brass">Added experiences</p>

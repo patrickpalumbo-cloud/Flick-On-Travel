@@ -12,6 +12,9 @@ export function Nav() {
           <span className="text-xs font-semibold uppercase tracking-[0.26em] text-ivory sm:text-sm">Flick On Travel</span>
         </Link>
         <div className="hidden items-center gap-6 text-sm text-ivory/74 md:flex">
+          <Link className="focus-ring rounded-sm hover:text-white" href="/destinations">
+            Destinations
+          </Link>
           <Link className="focus-ring rounded-sm hover:text-white" href="/quiz">
             Quiz
           </Link>
