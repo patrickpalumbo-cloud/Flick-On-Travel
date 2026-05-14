@@ -51,9 +51,9 @@ export default function QuizPage() {
     [preferences.destinationLikes]
   );
   const experienceCards = useMemo(() => {
-    const visibleCityIds = new Set([...destinationCards.map((city) => city.id), ...selectedCities.map((city) => city.id)]);
-    return experiences.filter((experience) => visibleCityIds.has(experience.cityId));
-  }, [destinationCards, selectedCities]);
+    const selectedCityIds = new Set(selectedCities.map((city) => city.id));
+    return experiences.filter((experience) => selectedCityIds.has(experience.cityId));
+  }, [selectedCities]);
 
   function toggleInterest(interest: Interest) {
     setPreferences((current) => ({
@@ -70,9 +70,11 @@ export default function QuizPage() {
   }
 
   function chooseDestination(cityId: string, liked: boolean) {
+    const cityExperienceIds = experiences.filter((experience) => experience.cityId === cityId).map((experience) => experience.id);
     setPreferences((current) => ({
       ...current,
-      destinationLikes: liked ? Array.from(new Set([...current.destinationLikes, cityId])) : current.destinationLikes.filter((id) => id !== cityId)
+      destinationLikes: liked ? Array.from(new Set([...current.destinationLikes, cityId])) : current.destinationLikes.filter((id) => id !== cityId),
+      experienceLikes: liked ? current.experienceLikes : current.experienceLikes.filter((id) => !cityExperienceIds.includes(id))
     }));
   }
 
@@ -255,24 +257,35 @@ export default function QuizPage() {
 
             {step === "experiences" ? (
               <Panel title="Swipe the moments worth flying for.">
-                <SwipeDeck
-                  kind="experience"
-                  items={experienceCards}
-                  likedIds={preferences.experienceLikes}
-                  onDecision={chooseExperience}
-                  onReset={resetExperienceLikes}
-                  renderCard={(experience) => (
-                    <>
-                      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brass">{experience.eyebrow}</p>
-                      <h3 className="mt-4 font-serif text-4xl leading-tight text-white">{experience.title}</h3>
-                      <p className="mt-5 min-h-20 text-base leading-7 text-white/74">{experience.description}</p>
-                      <div className="mt-6 flex items-center justify-between border-t border-white/10 pt-5 text-sm text-white/62">
-                        <span>{cityNameForExperience(experience)}</span>
-                        <span>{experience.category}</span>
-                      </div>
-                    </>
-                  )}
-                />
+                {selectedCities.length === 0 ? (
+                  <GeneralExperienceCategories selected={preferences.interests} onSelect={toggleInterest} />
+                ) : (
+                  <div className="grid gap-5">
+                    <ExperienceAvailability selectedCities={selectedCities} />
+                    {experienceCards.length ? (
+                      <SwipeDeck
+                        kind="experience"
+                        items={experienceCards}
+                        likedIds={preferences.experienceLikes}
+                        onDecision={chooseExperience}
+                        onReset={resetExperienceLikes}
+                        renderCard={(experience) => (
+                          <>
+                            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brass">{cityNameForExperience(experience)}</p>
+                            <h3 className="mt-4 font-serif text-4xl leading-tight text-white">{experience.title}</h3>
+                            <p className="mt-5 min-h-20 text-base leading-7 text-white/74">{experience.description}</p>
+                            <div className="mt-6 flex items-center justify-between border-t border-white/10 pt-5 text-sm text-white/62">
+                              <span>{experience.eyebrow}</span>
+                              <span>{experience.category}</span>
+                            </div>
+                          </>
+                        )}
+                      />
+                    ) : (
+                      <NoCuratedExperiences selectedCities={selectedCities} />
+                    )}
+                  </div>
+                )}
               </Panel>
             ) : null}
 
@@ -337,6 +350,62 @@ function Panel({ title, children }: { title: string; children: ReactNode }) {
       <Heart size={20} aria-hidden="true" />
       <h2 className="mt-5 font-serif text-3xl leading-tight sm:text-5xl">{title}</h2>
       <div className="mt-8">{children}</div>
+    </div>
+  );
+}
+
+function GeneralExperienceCategories({ selected, onSelect }: { selected: Interest[]; onSelect: (interest: Interest) => void }) {
+  const categoryOptions: Interest[] = ["sport", "food", "culture", "nightlife", "luxury", "beach", "shopping", "adventure"];
+
+  return (
+    <div className="grid gap-5">
+      <div className="border border-black/10 bg-white/75 p-5">
+        <p className="text-sm font-semibold text-ink">Select destinations first for city-specific experiences.</p>
+        <p className="mt-2 text-sm leading-6 text-ink/58">
+          For now, choose the experience styles you care about. Once London, Paris or any other destination is in your route, the cards will only show experiences for those selected cities.
+        </p>
+      </div>
+      <OptionGrid items={categoryOptions} selected={selected} onSelect={onSelect} multi />
+    </div>
+  );
+}
+
+function ExperienceAvailability({ selectedCities }: { selectedCities: City[] }) {
+  return (
+    <div className="grid gap-2">
+      {selectedCities.map((city) => {
+        const cityExperiences = experiences.filter((experience) => experience.cityId === city.id);
+        if (cityExperiences.length) {
+          return (
+            <div key={city.id} className="flex items-center justify-between border border-black/10 bg-white/70 px-3 py-2 text-sm">
+              <span className="font-semibold text-ink">{city.name}</span>
+              <span className="text-ink/52">{cityExperiences.length} curated {cityExperiences.length === 1 ? "experience" : "experiences"}</span>
+            </div>
+          );
+        }
+
+        return (
+          <div key={city.id} className="border border-black/10 bg-white/70 px-3 py-2 text-sm leading-6">
+            <p className="font-semibold text-ink">{city.name}: No curated experiences yet</p>
+            <p className="text-ink/52">Suggested themes: {city.tags.slice(0, 3).join(", ")}</p>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function NoCuratedExperiences({ selectedCities }: { selectedCities: City[] }) {
+  return (
+    <div className="border border-black/10 bg-white/75 p-5">
+      <p className="text-lg font-semibold text-ink">No curated experiences yet</p>
+      <div className="mt-3 grid gap-2">
+        {selectedCities.map((city) => (
+          <p key={city.id} className="text-sm leading-6 text-ink/58">
+            {city.name}: consider {city.tags.slice(0, 3).join(", ")} led activities.
+          </p>
+        ))}
+      </div>
     </div>
   );
 }

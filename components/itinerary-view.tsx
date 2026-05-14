@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { ArrowRight, Building2, Plane, Repeat2, Ticket, TrainFront, X } from "lucide-react";
-import type { City, Itinerary } from "@/lib/trip-data";
+import { experiences, type City, type Itinerary } from "@/lib/trip-data";
 
 export function ItineraryView({ itinerary, editable = false, cityOptions = [], onSwap, onDestinationChange, onNightChange, onExperienceRemove }: {
   itinerary: Itinerary;
@@ -70,6 +70,12 @@ export function ItineraryView({ itinerary, editable = false, cityOptions = [], o
                       ) : null}
                     </div>
                   ))}
+              </div>
+            ) : null}
+            {experiences.filter((experience) => experience.cityId === city.id).length === 0 ? (
+              <div className="mt-5 border-y border-black/10 py-4">
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brass">No curated experiences yet</p>
+                <p className="mt-2 text-sm leading-6 text-ink/58">Suggested themes: {city.tags.slice(0, 3).join(", ")}</p>
               </div>
             ) : null}
             <div className="mt-5 grid gap-2">

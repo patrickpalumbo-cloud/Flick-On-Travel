@@ -194,6 +194,7 @@ export default function CustomisePage() {
                 {itinerary.cities.map((city, index) => {
                   const cityExperiences = (itinerary.selectedExperiences ?? []).filter((experience) => experience.cityId === city.id);
                   const cityRecommendations = experiences.filter((experience) => experience.cityId === city.id && !selectedExperienceIds.has(experience.id));
+                  const hasCuratedExperiences = experiences.some((experience) => experience.cityId === city.id);
                   return (
                     <article
                       key={city.id}
@@ -265,7 +266,12 @@ export default function CustomisePage() {
                         </div>
 
                         <div className="mt-6 grid gap-4 lg:grid-cols-2">
-                          <ConciergeList icon={Trophy} title="Recommended sports experiences" items={cityRecommendations.map((experience) => experience.title)} empty="All matching sports experiences have been added." />
+                          <ConciergeList
+                            icon={Trophy}
+                            title="Recommended sports experiences"
+                            items={cityRecommendations.map((experience) => experience.title)}
+                            empty={hasCuratedExperiences ? "All matching sports experiences have been added." : `No curated experiences yet. Suggested themes: ${city.tags.slice(0, 3).join(", ")}.`}
+                          />
                           <ConciergeList icon={Hotel} title="Premium hotel suggestions" items={city.hotels.map((hotel) => `${hotel.name} · ${hotel.tier}`)} />
                         </div>
 
