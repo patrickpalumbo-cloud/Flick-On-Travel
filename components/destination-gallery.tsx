@@ -86,8 +86,8 @@ export function DestinationGallery({ images, title, variant = "immersive" }: Des
             />
           )
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-transparent to-black/20" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/68 via-black/10 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/36 via-transparent to-black/10" />
 
         <div className="absolute left-4 top-4 flex items-center gap-2">
           <span className="border border-brass/50 bg-black/45 px-3 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-brass backdrop-blur">

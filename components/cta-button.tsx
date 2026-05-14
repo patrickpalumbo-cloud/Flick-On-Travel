@@ -9,9 +9,9 @@ type CtaButtonProps = {
 
 export function CtaButton({ href, children, variant = "light" }: CtaButtonProps) {
   const styles = {
-    light: "bg-ivory text-ink hover:bg-white shadow-[0_18px_45px_rgba(255,255,255,0.12)]",
-    dark: "bg-ink text-ivory hover:bg-graphite border border-white/15",
-    ghost: "border border-white/20 bg-white/[0.06] text-ivory backdrop-blur hover:border-brass/70 hover:bg-white/10"
+    light: "bg-ink text-ivory hover:bg-graphite shadow-[0_18px_45px_rgba(23,19,15,0.16)]",
+    dark: "bg-white text-ink hover:bg-ivory border border-black/10 shadow-[0_18px_45px_rgba(93,72,48,0.12)]",
+    ghost: "border border-black/12 bg-white/62 text-ink shadow-[0_18px_45px_rgba(93,72,48,0.08)] backdrop-blur hover:border-brass/70 hover:bg-white"
   };
 
   return (

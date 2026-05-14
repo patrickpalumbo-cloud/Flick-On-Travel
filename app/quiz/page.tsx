@@ -93,16 +93,16 @@ export default function QuizPage() {
       <section className="mx-auto grid min-h-screen max-w-7xl gap-8 px-4 pb-10 pt-24 sm:px-6 sm:pt-28 lg:grid-cols-[0.95fr_1.05fr] lg:px-8">
         <div className="flex flex-col justify-center">
           <p className="text-sm font-semibold uppercase tracking-[0.22em] text-brass">Trip quiz</p>
-          <h1 className="mt-4 font-serif text-4xl leading-tight text-white sm:text-6xl">Swipe into the right kind of escape.</h1>
-          <p className="mt-5 max-w-xl text-lg leading-8 text-ivory/72">Pick fast. The route can be customised after the first recommendation.</p>
-          <div className="mt-8 h-1 overflow-hidden bg-white/10">
+          <h1 className="mt-4 font-serif text-4xl leading-tight text-ink sm:text-6xl">Swipe into the right kind of escape.</h1>
+          <p className="mt-5 max-w-xl text-lg leading-8 text-ink/66">Pick fast. The route can be customised after the first recommendation.</p>
+          <div className="mt-8 h-1 overflow-hidden bg-black/10">
             <div className="h-full bg-brass transition-all" style={{ width: `${progress}%` }} />
           </div>
-          <p className="mt-3 text-xs uppercase tracking-[0.2em] text-ivory/45">Step {stepIndex + 1} of {steps.length}</p>
+          <p className="mt-3 text-xs uppercase tracking-[0.2em] text-ink/45">Step {stepIndex + 1} of {steps.length}</p>
         </div>
 
         <div className="premium-panel self-center p-3 sm:p-5">
-          <div className="min-h-[430px] bg-ivory p-5 text-ink shadow-[inset_0_1px_rgba(255,255,255,0.35)] sm:p-8">
+          <div className="min-h-[430px] bg-white/80 p-5 text-ink shadow-[inset_0_1px_rgba(255,255,255,0.65)] sm:p-8">
             {step === "region" ? (
               <Panel title="Where should we point the lounge pass?">
                 <OptionGrid
@@ -197,14 +197,14 @@ export default function QuizPage() {
 
           <div className="mt-4 flex items-center justify-between">
             <button
-              className="focus-ring inline-flex min-h-11 items-center gap-2 rounded-sm border border-white/15 bg-black/10 px-4 text-sm text-ivory transition hover:border-brass/70 disabled:opacity-40"
+              className="focus-ring inline-flex min-h-11 items-center gap-2 rounded-sm border border-black/10 bg-white/70 px-4 text-sm text-ink transition hover:border-brass/70 hover:bg-white disabled:opacity-40"
               disabled={stepIndex === 0}
               onClick={() => setStepIndex(stepIndex - 1)}
             >
               <ArrowLeft size={16} aria-hidden="true" />
               Back
             </button>
-            <button className="focus-ring inline-flex min-h-11 items-center gap-2 rounded-sm bg-ivory px-5 text-sm font-semibold text-ink transition duration-300 hover:-translate-y-0.5 hover:bg-white" onClick={next}>
+            <button className="focus-ring inline-flex min-h-11 items-center gap-2 rounded-sm bg-ink px-5 text-sm font-semibold text-ivory shadow-[0_18px_45px_rgba(23,19,15,0.16)] transition duration-300 hover:-translate-y-0.5 hover:bg-graphite" onClick={next}>
               {stepIndex === steps.length - 1 ? "Generate itinerary" : "Next"}
               <ArrowRight size={16} aria-hidden="true" />
             </button>
@@ -248,7 +248,7 @@ function OptionGrid<T extends string>({
             key={item}
             onClick={() => onSelect(item)}
             className={`focus-ring flex min-h-16 items-center justify-between rounded-sm border px-4 text-left text-sm font-semibold transition duration-300 hover:-translate-y-0.5 ${
-              active ? "border-black bg-black text-white shadow-[0_18px_40px_rgba(0,0,0,0.18)]" : "border-black/15 bg-white text-black hover:border-black/50"
+              active ? "border-ink bg-ink text-ivory shadow-[0_18px_40px_rgba(23,19,15,0.16)]" : "border-black/15 bg-white text-ink hover:border-black/50"
             }`}
           >
             {item}
@@ -339,7 +339,7 @@ function SwipeDeck<T extends City | Experience>({
               key={item.id}
               onPointerDown={isTop ? startDrag : undefined}
               onPointerUp={isTop ? finishDrag : undefined}
-              className={`absolute inset-0 flex flex-col justify-between overflow-hidden rounded-sm border border-white/10 bg-ink p-6 text-white shadow-lounge transition duration-200 ${
+              className={`absolute inset-0 flex flex-col justify-between overflow-hidden rounded-sm border border-black/10 bg-[linear-gradient(145deg,#2b241e,#17130f)] p-6 text-white shadow-lounge transition duration-200 ${
                 isTop && motion === "right" ? "translate-x-16 rotate-6 opacity-0" : ""
               } ${isTop && motion === "left" ? "-translate-x-16 -rotate-6 opacity-0" : ""}`}
               style={{ transform: isTop ? undefined : `translateY(${depth * 10}px) scale(${1 - depth * 0.035})`, zIndex: 10 - depth }}

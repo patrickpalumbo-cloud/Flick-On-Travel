@@ -30,23 +30,22 @@ export default function DestinationPage({ params }: { params: { id: string } }) 
       <article className="snap-scroll">
         <section className="snap-panel relative min-h-screen overflow-hidden">
           <Image src={guide.image} alt={guide.imageAlt} fill priority className="cinematic-pan object-cover" />
-          <div className="absolute inset-0 bg-black/45" />
-          <div className="absolute inset-0 bg-gradient-to-r from-black via-black/70 to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-t from-ink via-transparent to-black/30" />
+          <div className="absolute inset-0 bg-gradient-to-r from-ivory/95 via-ivory/72 to-white/5" />
+          <div className="absolute inset-0 bg-gradient-to-t from-ivory via-transparent to-white/20" />
 
           <div className="relative z-10 mx-auto flex min-h-screen max-w-7xl flex-col justify-end px-4 pb-12 pt-28 sm:px-6 lg:px-8">
-            <Link href="/destinations" className="focus-ring mb-8 inline-flex w-fit items-center gap-2 rounded-sm border border-white/15 bg-black/30 px-4 py-2 text-sm text-ivory backdrop-blur">
+            <Link href="/destinations" className="focus-ring mb-8 inline-flex w-fit items-center gap-2 rounded-sm border border-black/10 bg-white/70 px-4 py-2 text-sm text-ink shadow-[0_18px_45px_rgba(93,72,48,0.08)] backdrop-blur">
               <ArrowLeft size={15} aria-hidden="true" />
               Destinations
             </Link>
             <div className="animate-fade-up max-w-4xl">
               <p className="text-sm font-semibold uppercase tracking-[0.24em] text-brass">{guide.city.country} · {guide.city.region}</p>
-              <h1 className="mt-4 font-serif text-6xl leading-none text-white sm:text-8xl">{guide.city.name}</h1>
+              <h1 className="mt-4 font-serif text-6xl leading-none text-ink sm:text-8xl">{guide.city.name}</h1>
               <div className="shimmer-line mt-6 h-px w-56 bg-brass/70" />
-              <p className="mt-6 max-w-2xl text-xl leading-9 text-ivory/78">{guide.city.headline}</p>
+              <p className="mt-6 max-w-2xl text-xl leading-9 text-ink/70">{guide.city.headline}</p>
               <div className="mt-8 flex flex-wrap gap-2">
                 {guide.city.sports.map((sport) => (
-                  <span key={sport} className="border border-white/15 bg-black/30 px-3 py-2 text-xs uppercase tracking-[0.16em] text-ivory/78 backdrop-blur">
+                  <span key={sport} className="border border-black/10 bg-white/70 px-3 py-2 text-xs uppercase tracking-[0.16em] text-ink/70 shadow-[0_12px_30px_rgba(93,72,48,0.08)] backdrop-blur">
                     {sport}
                   </span>
                 ))}
@@ -59,9 +58,9 @@ export default function DestinationPage({ params }: { params: { id: string } }) 
           <div className="mb-6 grid gap-4 lg:grid-cols-[0.75fr_1.25fr] lg:items-end">
             <div>
               <p className="text-sm font-semibold uppercase tracking-[0.22em] text-brass">Immersive gallery</p>
-              <h2 className="mt-3 font-serif text-4xl text-white sm:text-5xl">See the trip before it exists.</h2>
+              <h2 className="mt-3 font-serif text-4xl text-ink sm:text-5xl">See the trip before it exists.</h2>
             </div>
-            <p className="max-w-2xl text-lg leading-8 text-ivory/68">
+            <p className="max-w-2xl text-lg leading-8 text-ink/64">
               Sports, nightlife, food, luxury, landscape and local texture, composed as a cinematic destination moodboard.
             </p>
           </div>
@@ -71,11 +70,11 @@ export default function DestinationPage({ params }: { params: { id: string } }) 
         <section className="snap-panel mx-auto grid max-w-7xl gap-6 px-4 py-16 sm:px-6 lg:grid-cols-[0.85fr_1.15fr] lg:px-8">
           <div className="lg:sticky lg:top-28 lg:self-start">
             <p className="text-sm font-semibold uppercase tracking-[0.22em] text-brass">When to go</p>
-            <h2 className="mt-3 font-serif text-4xl text-white sm:text-5xl">Best time to visit.</h2>
+            <h2 className="mt-3 font-serif text-4xl text-ink sm:text-5xl">Best time to visit.</h2>
           </div>
           <div className="scroll-reveal premium-panel p-6">
             <CalendarDays className="text-brass" size={24} aria-hidden="true" />
-            <p className="mt-5 text-xl leading-9 text-ivory/78">{guide.bestTime}</p>
+            <p className="mt-5 text-xl leading-9 text-ink/68">{guide.bestTime}</p>
           </div>
         </section>
 
@@ -95,13 +94,13 @@ export default function DestinationPage({ params }: { params: { id: string } }) 
           <div className="grid gap-6 lg:grid-cols-[0.8fr_1.2fr]">
             <div>
               <p className="text-sm font-semibold uppercase tracking-[0.22em] text-brass">Local experiences</p>
-              <h2 className="mt-3 font-serif text-4xl text-white sm:text-5xl">Moments worth building around.</h2>
+              <h2 className="mt-3 font-serif text-4xl text-ink sm:text-5xl">Moments worth building around.</h2>
             </div>
             <div className="grid gap-4 md:grid-cols-2">
               {[...guide.localExperiences, ...guide.experiences.map((experience) => experience.title)].map((item) => (
-                <div key={item} className="scroll-reveal border border-white/10 bg-white/[0.04] p-5">
+                <div key={item} className="scroll-reveal border border-black/10 bg-white/70 p-5 shadow-[0_18px_45px_rgba(93,72,48,0.08)]">
                   <Sparkles className="text-brass" size={18} aria-hidden="true" />
-                  <p className="mt-4 leading-7 text-ivory/74">{item}</p>
+                  <p className="mt-4 leading-7 text-ink/66">{item}</p>
                 </div>
               ))}
             </div>
@@ -119,9 +118,9 @@ export default function DestinationPage({ params }: { params: { id: string } }) 
         <section className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-6 px-4 py-16 sm:px-6 md:flex-row md:items-center lg:px-8">
           <div>
             <p className="text-sm font-semibold uppercase tracking-[0.22em] text-brass">Build from this city</p>
-            <h2 className="mt-3 font-serif text-4xl text-white">Turn the guide into a route.</h2>
+            <h2 className="mt-3 font-serif text-4xl text-ink">Turn the guide into a route.</h2>
           </div>
-          <Link href="/quiz" className="focus-ring inline-flex min-h-12 items-center gap-2 rounded-sm bg-ivory px-5 text-sm font-semibold text-ink transition duration-300 hover:-translate-y-0.5 hover:bg-white">
+          <Link href="/quiz" className="focus-ring inline-flex min-h-12 items-center gap-2 rounded-sm bg-ink px-5 text-sm font-semibold text-ivory shadow-[0_18px_45px_rgba(23,19,15,0.16)] transition duration-300 hover:-translate-y-0.5 hover:bg-graphite">
             Start trip quiz <ArrowRight size={16} aria-hidden="true" />
           </Link>
         </section>
@@ -144,17 +143,17 @@ function GuideBand({
   light?: boolean;
 }) {
   return (
-    <section className={`snap-panel border-y ${light ? "border-black/10 bg-ivory text-ink" : "border-white/10 bg-black/20 text-ivory"} py-16`}>
+    <section className={`snap-panel border-y ${light ? "border-black/10 bg-white/66 text-ink" : "border-black/10 bg-linen/54 text-ink"} py-16`}>
       <div className="mx-auto grid max-w-7xl gap-8 px-4 sm:px-6 lg:grid-cols-[0.8fr_1.2fr] lg:px-8">
         <div>
           <p className={`text-sm font-semibold uppercase tracking-[0.22em] ${light ? "text-black/55" : "text-brass"}`}>{eyebrow}</p>
-          <h2 className={`mt-3 font-serif text-4xl sm:text-5xl ${light ? "text-black" : "text-white"}`}>{title}</h2>
+          <h2 className="mt-3 font-serif text-4xl text-ink sm:text-5xl">{title}</h2>
         </div>
         <div className="grid gap-4 md:grid-cols-3">
           {items.map((item) => (
-            <div key={item} className={`scroll-reveal p-5 ${light ? "border border-black/10 bg-white" : "premium-panel"}`}>
-              <Icon className={light ? "text-black" : "text-brass"} size={19} aria-hidden="true" />
-              <p className={`mt-5 leading-7 ${light ? "text-black/68" : "text-ivory/72"}`}>{item}</p>
+            <div key={item} className={`scroll-reveal p-5 ${light ? "border border-black/10 bg-white shadow-[0_18px_45px_rgba(93,72,48,0.08)]" : "premium-panel"}`}>
+              <Icon className={light ? "text-ink" : "text-brass"} size={19} aria-hidden="true" />
+              <p className="mt-5 leading-7 text-ink/66">{item}</p>
             </div>
           ))}
         </div>
@@ -168,11 +167,11 @@ function GuidePanel({ icon: Icon, title, items }: { icon: LucideIcon; title: str
     <section className="scroll-reveal premium-panel p-6">
       <div className="flex items-center gap-3">
         <Icon className="text-brass" size={21} aria-hidden="true" />
-        <h2 className="text-2xl font-semibold text-white">{title}</h2>
+        <h2 className="text-2xl font-semibold text-ink">{title}</h2>
       </div>
       <div className="mt-6 grid gap-3">
         {items.map((item) => (
-          <p key={item} className="border-t border-white/10 pt-3 leading-7 text-ivory/70">
+          <p key={item} className="border-t border-black/10 pt-3 leading-7 text-ink/66">
             {item}
           </p>
         ))}

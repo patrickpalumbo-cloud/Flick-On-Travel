@@ -25,8 +25,8 @@ export default function DiscoverPage() {
         <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-end">
           <div>
             <p className="text-sm font-semibold uppercase tracking-[0.22em] text-brass">Smart discovery</p>
-            <h1 className="mt-3 font-serif text-5xl leading-none text-white sm:text-7xl">Find the destination that fits the brief.</h1>
-            <p className="mt-5 max-w-2xl text-lg leading-8 text-ivory/70">
+            <h1 className="mt-3 font-serif text-5xl leading-none text-ink sm:text-7xl">Find the destination that fits the brief.</h1>
+            <p className="mt-5 max-w-2xl text-lg leading-8 text-ink/66">
               Choose the signals that matter and Flick On Travel ranks destinations with curated reasoning, not generic listicles.
             </p>
           </div>
@@ -36,21 +36,21 @@ export default function DiscoverPage() {
               <div className="flex items-center justify-between gap-4">
                 <div>
                   <p className="text-sm text-brass">Top match</p>
-                  <h2 className="mt-2 font-serif text-4xl text-white">{heroRecommendation.city.name}</h2>
+                  <h2 className="mt-2 font-serif text-4xl text-ink">{heroRecommendation.city.name}</h2>
                 </div>
-                <div className="flex h-20 w-20 items-center justify-center rounded-full border border-brass bg-black/30 text-2xl font-semibold text-brass">
+                <div className="flex h-20 w-20 items-center justify-center rounded-full border border-brass/45 bg-white text-2xl font-semibold text-brass shadow-[0_18px_45px_rgba(93,72,48,0.12)]">
                   {heroRecommendation.matchPercent}%
                 </div>
               </div>
-              <p className="mt-5 leading-7 text-ivory/68">{heroRecommendation.reasons[0]}</p>
+              <p className="mt-5 leading-7 text-ink/64">{heroRecommendation.reasons[0]}</p>
             </div>
           ) : null}
         </div>
 
-        <section className="mt-10 border-y border-white/10 py-6">
+        <section className="mt-10 border-y border-black/10 py-6">
           <div className="mb-5 flex items-center gap-3">
             <SlidersHorizontal className="text-brass" size={19} aria-hidden="true" />
-            <h2 className="text-xl font-semibold text-white">Your travel signals</h2>
+            <h2 className="text-xl font-semibold text-ink">Your travel signals</h2>
           </div>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {discoveryInterests.map((interest) => {
@@ -60,14 +60,14 @@ export default function DiscoverPage() {
                   key={interest.id}
                   onClick={() => toggleInterest(interest.id)}
                   className={`focus-ring min-h-28 rounded-sm border p-4 text-left transition duration-300 hover:-translate-y-0.5 ${
-                    active ? "border-brass bg-brass text-ink" : "border-white/10 bg-white/[0.04] text-ivory hover:border-brass/60"
+                    active ? "border-brass bg-brass text-ink shadow-[0_18px_45px_rgba(184,150,87,0.18)]" : "border-black/10 bg-white/70 text-ink shadow-[0_18px_45px_rgba(93,72,48,0.08)] hover:border-brass/60"
                   }`}
                 >
                   <span className="flex items-center justify-between gap-4">
                     <span className="font-semibold">{interest.label}</span>
                     {active ? <Check size={18} aria-hidden="true" /> : null}
                   </span>
-                  <span className={`mt-3 block text-sm leading-6 ${active ? "text-black/68" : "text-ivory/58"}`}>{interest.description}</span>
+                  <span className={`mt-3 block text-sm leading-6 ${active ? "text-black/68" : "text-ink/58"}`}>{interest.description}</span>
                 </button>
               );
             })}
@@ -88,21 +88,21 @@ export default function DiscoverPage() {
 
                   <div className="p-5 sm:p-6">
                     <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brass">Recommendation {index + 1}</p>
-                    <h2 className="mt-2 font-serif text-5xl text-white">{recommendation.city.name}</h2>
-                    <p className="mt-1 text-sm text-ivory/62">{recommendation.city.country} · {recommendation.city.region}</p>
+                    <h2 className="mt-2 font-serif text-5xl text-ink">{recommendation.city.name}</h2>
+                    <p className="mt-1 text-sm text-ink/58">{recommendation.city.country} · {recommendation.city.region}</p>
                     <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
                       <div>
                         <p className="text-sm text-brass">Curated for {labelFor(recommendation.strongestInterest)}</p>
-                        <p className="mt-3 max-w-2xl text-lg leading-8 text-ivory/74">{recommendation.city.headline}</p>
+                        <p className="mt-3 max-w-2xl text-lg leading-8 text-ink/66">{recommendation.city.headline}</p>
                       </div>
-                      <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-full border border-white/15 bg-black/30 text-xl font-semibold text-white">
+                      <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-full border border-brass/35 bg-white text-xl font-semibold text-ink shadow-[0_18px_45px_rgba(93,72,48,0.12)]">
                         {recommendation.matchPercent}%
                       </div>
                     </div>
 
                     <div className="mt-6 grid gap-3">
                       {recommendation.reasons.map((reason) => (
-                        <p key={reason} className="flex gap-3 border-t border-white/10 pt-3 text-sm leading-6 text-ivory/66">
+                        <p key={reason} className="flex gap-3 border-t border-black/10 pt-3 text-sm leading-6 text-ink/62">
                           <Sparkles className="mt-1 shrink-0 text-brass" size={15} aria-hidden="true" />
                           {reason}
                         </p>
@@ -110,10 +110,10 @@ export default function DiscoverPage() {
                     </div>
 
                     <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-                      <Link href={`/destinations/${recommendation.city.id}`} className="focus-ring inline-flex min-h-11 items-center justify-center gap-2 rounded-sm bg-ivory px-4 text-sm font-semibold text-ink transition hover:bg-white">
+                      <Link href={`/destinations/${recommendation.city.id}`} className="focus-ring inline-flex min-h-11 items-center justify-center gap-2 rounded-sm bg-ink px-4 text-sm font-semibold text-ivory shadow-[0_18px_45px_rgba(23,19,15,0.16)] transition hover:bg-graphite">
                         Open destination <ArrowRight size={15} aria-hidden="true" />
                       </Link>
-                      <Link href="/quiz" className="focus-ring inline-flex min-h-11 items-center justify-center rounded-sm border border-white/15 px-4 text-sm font-semibold text-ivory transition hover:border-brass/70">
+                      <Link href="/quiz" className="focus-ring inline-flex min-h-11 items-center justify-center rounded-sm border border-black/12 bg-white/70 px-4 text-sm font-semibold text-ink transition hover:border-brass/70 hover:bg-white">
                         Build a trip
                       </Link>
                     </div>
