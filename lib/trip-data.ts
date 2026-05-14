@@ -149,8 +149,18 @@ export const experiences: Experience[] = cities.slice(0, 36).map((city) => ({
 }));
 
 export function buildItinerary(preferences: TripPreferences): Itinerary {
+  const likedCityIds = new Set(preferences.destinationLikes);
+  const explicitlySelected = preferences.destinationLikes
+    .map((cityId) => cities.find((city) => city.id === cityId))
+    .filter((city): city is City => Boolean(city));
   const scoped = cities.filter((city) => city.country === preferences.country && (preferences.countryRegion === allCountryRegions || city.countryRegion === preferences.countryRegion));
-  const pool = scoped.length ? scoped : cities.filter((city) => city.country === preferences.country);
+  const countryPool = scoped.length ? scoped : cities.filter((city) => city.country === preferences.country);
+  const pool = explicitlySelected.length
+    ? [
+        ...explicitlySelected,
+        ...cities.filter((city) => !likedCityIds.has(city.id))
+      ]
+    : countryPool;
   const targetStops = stopsFor(preferences.tripLength, preferences.pace);
 
   const ranked = pool
@@ -158,7 +168,8 @@ export function buildItinerary(preferences: TripPreferences): Itinerary {
     .sort((a, b) => b.score - a.score || a.city.name.localeCompare(b.city.name))
     .map(({ city }) => city);
 
-  const selected = orderByProximity(ranked.slice(0, Math.min(targetStops, ranked.length))).map((city) => ({
+  const stopCount = explicitlySelected.length ? Math.min(Math.max(explicitlySelected.length, targetStops), ranked.length) : Math.min(targetStops, ranked.length);
+  const selected = orderByProximity(ranked.slice(0, stopCount), preferences).map((city) => ({
     ...city,
     recommendationReason: reasonFor(city, preferences)
   }));
@@ -170,8 +181,8 @@ export function buildItinerary(preferences: TripPreferences): Itinerary {
     .filter((experience) => selectedCityIds.has(experience.cityId));
 
   return {
-    title: `${preferences.country} ${preferences.style.toLowerCase()} itinerary`,
-    summary: `Estimated MVP route for ${preferences.tripLength} nights at a ${preferences.pace.toLowerCase()} pace, balancing ${preferences.interests.join(", ") || "premium travel"} with ${preferences.gemPreference.toLowerCase()} discovery.`,
+    title: `${routeTitle(citiesWithNights, preferences)} itinerary`,
+    summary: `Estimated MVP multi-city route for ${preferences.tripLength} nights at a ${preferences.pace.toLowerCase()} pace, balancing ${preferences.interests.join(", ") || "premium travel"} with ${preferences.gemPreference.toLowerCase()} discovery.`,
     cities: citiesWithNights,
     selectedExperiences,
     transport: buildTransport(citiesWithNights)
@@ -248,11 +259,12 @@ export const defaultPreferences: TripPreferences = {
 function scoreCity(city: City, preferences: TripPreferences) {
   const interestScore = city.tags.filter((tag) => preferences.interests.includes(tag)).length * 3;
   const sportScore = city.sports.filter((sport) => preferences.sports.includes(sport)).length * 2;
-  const destinationScore = preferences.destinationLikes.includes(city.id) ? 8 : 0;
+  const destinationScore = preferences.destinationLikes.includes(city.id) ? 18 : 0;
+  const countryScore = city.country === preferences.country ? 2 : city.region === preferences.region ? 1 : 0;
   const styleScore = city.tags.includes(styleToTag(preferences.style)) ? 3 : 0;
   const prominenceScore = preferences.gemPreference === "Iconic" && ["well known", "popular"].includes(city.prominence) ? 4 : preferences.gemPreference === "Hidden gems" && ["hidden gem", "quiet alternative", "upcoming"].includes(city.prominence) ? 4 : 2;
   const paceScore = preferences.pace === "Relaxed" && city.tags.includes("quiet / relaxed") ? 2 : preferences.pace === "Fast" && city.tags.includes("well known") ? 2 : 1;
-  return interestScore + sportScore + destinationScore + styleScore + prominenceScore + paceScore;
+  return interestScore + sportScore + destinationScore + countryScore + styleScore + prominenceScore + paceScore;
 }
 
 function reasonFor(city: City, preferences: TripPreferences) {
@@ -296,16 +308,48 @@ function distributeNights(route: City[], totalNights: number, pace: Pace) {
   return nights;
 }
 
-function orderByProximity(route: City[]) {
+function routeTitle(route: City[], preferences: TripPreferences) {
+  const countriesInRoute = Array.from(new Set(route.map((city) => city.country)));
+  if (countriesInRoute.length > 1) return `${countriesInRoute.slice(0, 3).join(" + ")} ${preferences.style.toLowerCase()}`;
+  return `${preferences.country} ${preferences.style.toLowerCase()}`;
+}
+
+function orderByProximity(route: City[], preferences?: TripPreferences) {
   if (route.length <= 2) return route;
-  const ordered = [route[0]];
-  const remaining = route.slice(1);
+  const startingCandidates = route.slice().sort((a, b) => startScore(b, preferences) - startScore(a, preferences)).slice(0, Math.min(4, route.length));
+  return startingCandidates
+    .map((start) => nearestRouteFrom(start, route))
+    .sort((a, b) => routeDistance(a) - routeDistance(b))[0];
+}
+
+function nearestRouteFrom(start: City, route: City[]) {
+  const ordered = [start];
+  const remaining = route.filter((city) => city.id !== start.id);
   while (remaining.length) {
     const last = ordered[ordered.length - 1];
-    const nextIndex = remaining.reduce((bestIndex, city, index) => (distanceBetween(last, city) < distanceBetween(last, remaining[bestIndex]) ? index : bestIndex), 0);
+    const nextIndex = remaining.reduce((bestIndex, city, index) => {
+      const currentScore = routeLegScore(last, city);
+      const bestScore = routeLegScore(last, remaining[bestIndex]);
+      return currentScore < bestScore ? index : bestIndex;
+    }, 0);
     ordered.push(remaining.splice(nextIndex, 1)[0]);
   }
   return ordered;
+}
+
+function startScore(city: City, preferences?: TripPreferences) {
+  const interestScore = preferences ? city.tags.filter((tag) => preferences.interests.includes(tag)).length : 0;
+  const sportScore = preferences ? city.sports.filter((sport) => preferences.sports.includes(sport)).length : 0;
+  return interestScore + sportScore + (preferences?.destinationLikes.includes(city.id) ? 2 : 0);
+}
+
+function routeLegScore(a: City, b: City) {
+  const sameCountryBonus = a.country === b.country ? 120 : a.region === b.region ? 60 : 0;
+  return distanceBetween(a, b) - sameCountryBonus;
+}
+
+function routeDistance(route: City[]) {
+  return route.slice(0, -1).reduce((total, city, index) => total + routeLegScore(city, route[index + 1]), 0);
 }
 
 function distanceBetween(a: Pick<City, "lat" | "lon">, b: Pick<City, "lat" | "lon">) {

@@ -5,18 +5,29 @@ import Link from "next/link";
 import { ArrowRight, CalendarDays, GripVertical, Hotel, MapPinned, Minus, Plane, Plus, Save, Sparkles, TrainFront, Trophy, X } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { TripShell } from "@/components/trip-shell";
-import { buildItinerary, buildTransport, cities, defaultPreferences, experiences, type City, type Experience, type Itinerary } from "@/lib/trip-data";
+import { allCountryRegions, buildItinerary, buildTransport, cities, countries, countryRegions, defaultPreferences, experiences, type City, type CountryName, type Experience, type Itinerary } from "@/lib/trip-data";
 import { readItinerary, writeItinerary } from "@/lib/storage";
 
 export default function CustomisePage() {
   const [itinerary, setItinerary] = useState<Itinerary>(() => buildItinerary(defaultPreferences));
   const [draggedCityId, setDraggedCityId] = useState<string | null>(null);
+  const [browseCountry, setBrowseCountry] = useState<CountryName>(defaultPreferences.country);
+  const [browseRegion, setBrowseRegion] = useState<string>(allCountryRegions);
 
   useEffect(() => {
     setItinerary(normalizeItinerary(readItinerary()));
   }, []);
 
-  const cityPool = useMemo(() => cities.filter((city) => city.country === itinerary.cities[0]?.country), [itinerary.cities]);
+  const addableCities = useMemo(
+    () =>
+      cities.filter(
+        (city) =>
+          city.country === browseCountry &&
+          (browseRegion === allCountryRegions || city.countryRegion === browseRegion) &&
+          !itinerary.cities.some((selectedCity) => selectedCity.id === city.id)
+      ),
+    [browseCountry, browseRegion, itinerary.cities]
+  );
   const selectedExperienceIds = useMemo(() => new Set((itinerary.selectedExperiences ?? []).map((experience) => experience.id)), [itinerary.selectedExperiences]);
   const routeCityIds = useMemo(() => new Set(itinerary.cities.map((city) => city.id)), [itinerary.cities]);
   const availableExperiences = useMemo(
@@ -38,7 +49,10 @@ export default function CustomisePage() {
 
   function swapCity(cityId: string) {
     const currentIndex = itinerary.cities.findIndex((city) => city.id === cityId);
-    const unused = cityPool.find((city) => !itinerary.cities.some((selected) => selected.id === city.id));
+    const unused = cities
+      .filter((city) => !itinerary.cities.some((selected) => selected.id === city.id))
+      .map((city) => ({ city, distance: currentIndex > 0 ? distanceHint(itinerary.cities[currentIndex - 1], city) : 0 }))
+      .sort((a, b) => a.distance - b.distance)[0]?.city;
     if (currentIndex < 0 || !unused) return;
 
     const nextCities = itinerary.cities.map((city, index) => (index === currentIndex ? { ...unused, nights: city.nights } : city));
@@ -46,7 +60,7 @@ export default function CustomisePage() {
   }
 
   function changeCity(cityId: string, nextCityId: string) {
-    const replacement = cityPool.find((city) => city.id === nextCityId);
+    const replacement = cities.find((city) => city.id === nextCityId);
     if (!replacement) return;
 
     const nextCities = itinerary.cities.map((city) => (city.id === cityId ? { ...replacement, nights: city.nights } : city));
@@ -56,6 +70,20 @@ export default function CustomisePage() {
   function changeNights(cityId: string, nights: number) {
     const nextCities = itinerary.cities.map((city) => (city.id === cityId ? { ...city, nights: Math.max(1, Math.min(7, nights || 1)) } : city));
     updateItinerary({ ...itinerary, cities: nextCities });
+  }
+
+  function addDestination(cityId: string) {
+    const nextCity = cities.find((city) => city.id === cityId);
+    if (!nextCity || itinerary.cities.some((city) => city.id === cityId)) return;
+    updateItinerary({ ...itinerary, cities: [...itinerary.cities, nextCity] });
+  }
+
+  function removeDestination(cityId: string) {
+    if (itinerary.cities.length <= 1) return;
+    updateItinerary({
+      ...itinerary,
+      cities: itinerary.cities.filter((city) => city.id !== cityId)
+    });
   }
 
   function moveCity(targetCityId: string) {
@@ -118,6 +146,49 @@ export default function CustomisePage() {
                 <p className="max-w-md text-sm leading-6 text-ink/58">Reorder destinations, adjust nights, swap cities and layer sports-led experiences into each stop.</p>
               </div>
 
+              <div className="mb-6 grid gap-3 border border-black/10 bg-white/70 p-4 lg:grid-cols-[1fr_1fr_auto] lg:items-end">
+                <label className="grid gap-2 text-sm text-ink/62">
+                  Add from country
+                  <select
+                    className="focus-ring h-11 rounded-sm border border-black/10 bg-white px-3 text-ink"
+                    value={browseCountry}
+                    onChange={(event) => {
+                      setBrowseCountry(event.target.value as CountryName);
+                      setBrowseRegion(allCountryRegions);
+                    }}
+                  >
+                    {countries.map((country) => (
+                      <option key={country} value={country}>
+                        {country}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label className="grid gap-2 text-sm text-ink/62">
+                  Region
+                  <select className="focus-ring h-11 rounded-sm border border-black/10 bg-white px-3 text-ink" value={browseRegion} onChange={(event) => setBrowseRegion(event.target.value)}>
+                    {(countryRegions[browseCountry] ?? [allCountryRegions]).map((region) => (
+                      <option key={region} value={region}>
+                        {region}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <select className="focus-ring h-11 rounded-sm border border-black/10 bg-white px-3 text-ink" defaultValue="" onChange={(event) => {
+                  addDestination(event.target.value);
+                  event.currentTarget.value = "";
+                }}>
+                  <option value="" disabled>
+                    Add destination
+                  </option>
+                  {addableCities.map((city) => (
+                    <option key={city.id} value={city.id}>
+                      {city.name} · {city.countryRegion}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
               <div className="relative grid gap-5">
                 <div className="absolute bottom-10 left-5 top-10 hidden w-px bg-gradient-to-b from-brass via-black/10 to-brass/20 md:block" />
                 {itinerary.cities.map((city, index) => {
@@ -163,9 +234,9 @@ export default function CustomisePage() {
                                 value={city.id}
                                 onChange={(event) => changeCity(city.id, event.target.value)}
                               >
-                                {cityPool.map((option) => (
+                                {cities.map((option) => (
                                   <option key={option.id} value={option.id} disabled={option.id !== city.id && itinerary.cities.some((selectedCity) => selectedCity.id === option.id)}>
-                                    {option.name}
+                                    {option.name} · {option.country}
                                   </option>
                                 ))}
                               </select>
@@ -185,6 +256,10 @@ export default function CustomisePage() {
                             <button className="focus-ring inline-flex min-h-11 items-center justify-center gap-2 rounded-sm border border-black/10 bg-white/70 px-3 text-sm transition hover:border-brass/70 hover:bg-white" onClick={() => swapCity(city.id)}>
                               <MapPinned size={15} aria-hidden="true" />
                               Smart swap
+                            </button>
+                            <button className="focus-ring inline-flex min-h-11 items-center justify-center gap-2 rounded-sm border border-black/10 bg-white/70 px-3 text-sm transition hover:border-red-300 hover:bg-white disabled:opacity-40" onClick={() => removeDestination(city.id)} disabled={itinerary.cities.length <= 1}>
+                              <X size={15} aria-hidden="true" />
+                              Remove
                             </button>
                           </div>
                         </div>
@@ -272,7 +347,7 @@ export default function CustomisePage() {
               <article key={experience.id} className="border border-black/10 bg-white/72 p-5 shadow-[0_18px_45px_rgba(93,72,48,0.08)] transition duration-300 hover:-translate-y-1 hover:border-brass/50">
                 <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brass">{experience.eyebrow}</p>
                 <h3 className="mt-3 text-xl font-semibold text-ink">{experience.title}</h3>
-                <p className="mt-2 text-sm text-ink/52">{cityName(experience.cityId, cityPool)} · {experience.category}</p>
+                <p className="mt-2 text-sm text-ink/52">{cityName(experience.cityId, cities)} · {experience.category}</p>
                 <p className="mt-4 min-h-20 text-sm leading-6 text-ink/62">{experience.description}</p>
                 <button
                   className="focus-ring mt-5 inline-flex min-h-10 items-center gap-2 rounded-sm bg-ink px-4 text-sm font-semibold text-ivory transition duration-300 hover:bg-graphite"
@@ -305,6 +380,12 @@ function normalizeItinerary(itinerary: Itinerary): Itinerary {
 
 function cityName(cityId: string, cityPool: City[]) {
   return cityPool.find((city) => city.id === cityId)?.name ?? "Route stop";
+}
+
+function distanceHint(a: City, b: City) {
+  const dLat = b.lat - a.lat;
+  const dLon = b.lon - a.lon;
+  return dLat * dLat + dLon * dLon;
 }
 
 function BuilderStat({ icon: Icon, label, value }: { icon: LucideIcon; label: string; value: string }) {

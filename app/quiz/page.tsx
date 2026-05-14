@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { PointerEvent, ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, ArrowRight, Check, Heart, RotateCcw, X } from "lucide-react";
@@ -44,10 +44,14 @@ export default function QuizPage() {
     () => cities.filter((city) => city.country === preferences.country && (preferences.countryRegion === allCountryRegions || city.countryRegion === preferences.countryRegion)),
     [preferences.country, preferences.countryRegion]
   );
+  const selectedCities = useMemo(
+    () => preferences.destinationLikes.map((cityId) => cities.find((city) => city.id === cityId)).filter((city): city is City => Boolean(city)),
+    [preferences.destinationLikes]
+  );
   const experienceCards = useMemo(() => {
-    const regionCityIds = new Set(destinationCards.map((city) => city.id));
-    return experiences.filter((experience) => regionCityIds.has(experience.cityId));
-  }, [destinationCards]);
+    const visibleCityIds = new Set([...destinationCards.map((city) => city.id), ...selectedCities.map((city) => city.id)]);
+    return experiences.filter((experience) => visibleCityIds.has(experience.cityId));
+  }, [destinationCards, selectedCities]);
 
   function toggleInterest(interest: Interest) {
     setPreferences((current) => ({
@@ -117,7 +121,7 @@ export default function QuizPage() {
                 <OptionGrid
                   items={countries}
                   selected={[preferences.country]}
-                  onSelect={(country) => setPreferences({ ...preferences, country, region: regionForCountry(country), countryRegion: allCountryRegions, destinationLikes: [], experienceLikes: [] })}
+                  onSelect={(country) => setPreferences({ ...preferences, country, region: regionForCountry(country), countryRegion: allCountryRegions })}
                 />
               </Panel>
             ) : null}
@@ -127,7 +131,7 @@ export default function QuizPage() {
                 <OptionGrid
                   items={countryRegions[preferences.country] ?? [allCountryRegions]}
                   selected={[preferences.countryRegion]}
-                  onSelect={(countryRegion) => setPreferences({ ...preferences, countryRegion, destinationLikes: [], experienceLikes: [] })}
+                  onSelect={(countryRegion) => setPreferences({ ...preferences, countryRegion })}
                 />
               </Panel>
             ) : null}
@@ -146,6 +150,24 @@ export default function QuizPage() {
 
             {step === "destinations" ? (
               <Panel title="Swipe the destinations that feel like you.">
+                <div className="mb-5 grid gap-4">
+                  <div className="flex gap-2 overflow-x-auto pb-1">
+                    {countries.map((country) => (
+                      <button
+                        key={country}
+                        className={`focus-ring shrink-0 rounded-full border px-3 py-2 text-xs font-semibold transition ${
+                          preferences.country === country ? "border-ink bg-ink text-ivory" : "border-black/10 bg-white text-ink/62 hover:border-brass/60"
+                        }`}
+                        onClick={() => setPreferences((current) => ({ ...current, country, region: regionForCountry(country), countryRegion: allCountryRegions }))}
+                      >
+                        {country}
+                      </button>
+                    ))}
+                  </div>
+                  {selectedCities.length ? (
+                    <RoutePreview cities={selectedCities} onRemove={(cityId) => chooseDestination(cityId, false)} />
+                  ) : null}
+                </div>
                 <SwipeDeck
                   kind="destination"
                   items={destinationCards}
@@ -233,7 +255,7 @@ export default function QuizPage() {
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-black/50">Live route preview</p>
               <p className="mt-3 text-xl font-semibold">{preview.cities.map((city) => city.name).join("  /  ")}</p>
               <p className="mt-2 text-sm text-black/48">
-                {preferences.country} · {preferences.tripLength} nights · {preferences.destinationLikes.length} destinations liked · {preferences.experienceLikes.length} experiences saved
+                Browse focus: {preferences.country} · {preferences.tripLength} nights · {preferences.destinationLikes.length} destinations added · {preferences.experienceLikes.length} experiences saved
               </p>
             </div>
           </div>
@@ -272,6 +294,27 @@ function Panel({ title, children }: { title: string; children: ReactNode }) {
       <Heart size={20} aria-hidden="true" />
       <h2 className="mt-5 font-serif text-3xl leading-tight sm:text-5xl">{title}</h2>
       <div className="mt-8">{children}</div>
+    </div>
+  );
+}
+
+function RoutePreview({ cities, onRemove }: { cities: City[]; onRemove: (cityId: string) => void }) {
+  return (
+    <div className="border border-black/10 bg-white/75 p-3">
+      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-black/45">Selected route modules</p>
+      <div className="mt-3 flex flex-wrap items-center gap-2">
+        {cities.map((city, index) => (
+          <div key={city.id} className="flex items-center gap-2">
+            <span className="inline-flex items-center gap-2 rounded-full border border-brass/35 bg-brass/10 px-3 py-2 text-xs font-semibold text-ink">
+              {index + 1}. {city.name}
+              <button className="focus-ring rounded-full text-ink/45 hover:text-ink" onClick={() => onRemove(city.id)} aria-label={`Remove ${city.name}`}>
+                <X size={13} aria-hidden="true" />
+              </button>
+            </span>
+            {index < cities.length - 1 ? <ArrowRight size={14} className="text-brass" aria-hidden="true" /> : null}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
@@ -362,6 +405,11 @@ function SwipeDeck<T extends City | Experience>({
   const [dragStart, setDragStart] = useState<number | null>(null);
   const current = items[index];
   const remaining = Math.max(items.length - index, 0);
+
+  useEffect(() => {
+    setIndex(0);
+    setMotion(null);
+  }, [items]);
 
   function decide(liked: boolean) {
     if (!current) return;
