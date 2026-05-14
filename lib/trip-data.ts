@@ -15,6 +15,7 @@ export type Interest =
   | "food"
   | "shopping"
   | "adventure"
+  | "skiing"
   | "upcoming";
 export type Sport = "Formula 1" | "Tennis" | "Football" | "Golf" | "Basketball" | "Skiing";
 export type TravelStyle = "Luxury" | "Culture" | "Beach" | "Food" | "Sport" | "Family" | "Adventure";
@@ -101,7 +102,7 @@ type DestinationSeed = Omit<City, "id" | "hotels"> & {
 export const countries: CountryName[] = ["Italy", "France", "Spain", "Germany", "UK", "Portugal", "Greece", "Japan", "USA", "Australia"];
 export const regions: Region[] = ["Europe", "Asia-Pacific", "North America"];
 export const budgets: Budget[] = ["Essential", "Elevated", "First Class"];
-export const interests: Interest[] = ["beach", "historical", "nightlife", "culture", "hidden gem", "well known", "quiet / relaxed", "luxury", "sport", "family friendly", "food", "shopping", "adventure", "upcoming"];
+export const interests: Interest[] = ["beach", "historical", "nightlife", "culture", "hidden gem", "well known", "quiet / relaxed", "luxury", "sport", "family friendly", "food", "shopping", "adventure", "skiing", "upcoming"];
 export const sports: Sport[] = ["Formula 1", "Tennis", "Football", "Golf", "Basketball", "Skiing"];
 export const travelStyles: TravelStyle[] = ["Luxury", "Culture", "Beach", "Food", "Sport", "Family", "Adventure"];
 export const paces: Pace[] = ["Relaxed", "Balanced", "Fast"];
