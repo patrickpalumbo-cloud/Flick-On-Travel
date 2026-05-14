@@ -155,7 +155,7 @@ export function buildItinerary(preferences: TripPreferences): Itinerary {
     .filter((city): city is City => Boolean(city));
   const scoped = cities.filter((city) => city.country === preferences.country && (preferences.countryRegion === allCountryRegions || city.countryRegion === preferences.countryRegion));
   const countryPool = scoped.length ? scoped : cities.filter((city) => city.country === preferences.country);
-  const pool = explicitlySelected.length
+  const pool = explicitlySelected.length === 1
     ? [
         ...explicitlySelected,
         ...cities.filter((city) => !likedCityIds.has(city.id))
@@ -163,13 +163,14 @@ export function buildItinerary(preferences: TripPreferences): Itinerary {
     : countryPool;
   const targetStops = stopsFor(preferences.tripLength, preferences.pace);
 
-  const ranked = pool
+  const ranked = (explicitlySelected.length >= 2 ? explicitlySelected : pool)
     .map((city) => ({ city, score: scoreCity(city, preferences) }))
     .sort((a, b) => b.score - a.score || a.city.name.localeCompare(b.city.name))
     .map(({ city }) => city);
 
-  const stopCount = explicitlySelected.length ? Math.min(Math.max(explicitlySelected.length, targetStops), ranked.length) : Math.min(targetStops, ranked.length);
-  const selected = orderByProximity(ranked.slice(0, stopCount), preferences).map((city) => ({
+  const stopCount = explicitlySelected.length >= 2 ? explicitlySelected.length : Math.min(targetStops, ranked.length);
+  const route = explicitlySelected.length >= 2 ? explicitlySelected : orderByProximity(ranked.slice(0, stopCount), preferences);
+  const selected = route.map((city) => ({
     ...city,
     recommendationReason: reasonFor(city, preferences)
   }));
@@ -187,6 +188,14 @@ export function buildItinerary(preferences: TripPreferences): Itinerary {
     selectedExperiences,
     transport: buildTransport(citiesWithNights)
   };
+}
+
+export function recommendRouteOrder(destinationIds: string[], preferences: TripPreferences): string[] {
+  const selected = destinationIds
+    .map((cityId) => cities.find((city) => city.id === cityId))
+    .filter((city): city is City => Boolean(city));
+
+  return orderByProximity(selected, preferences).map((city) => city.id);
 }
 
 export function buildTransport(route: City[]): TransportOption[] {

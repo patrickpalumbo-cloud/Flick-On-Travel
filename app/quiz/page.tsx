@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import type { PointerEvent, ReactNode } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, ArrowRight, Check, Heart, RotateCcw, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, GripVertical, Heart, RotateCcw, Sparkles, X } from "lucide-react";
 import { TripShell } from "@/components/trip-shell";
 import {
   budgets,
@@ -16,6 +16,7 @@ import {
   gemPreferences,
   interests,
   paces,
+  recommendRouteOrder,
   sports,
   travelStyles,
   allCountryRegions,
@@ -29,13 +30,14 @@ import {
 } from "@/lib/trip-data";
 import { writeItinerary, writePreferences } from "@/lib/storage";
 
-type Step = "country" | "region" | "length" | "destinations" | "budget" | "interests" | "experiences" | "sports" | "style" | "pace" | "gems";
-const steps: Step[] = ["country", "region", "length", "destinations", "budget", "interests", "experiences", "sports", "style", "pace", "gems"];
+type Step = "country" | "region" | "length" | "destinations" | "route" | "budget" | "interests" | "experiences" | "sports" | "style" | "gems";
+const steps: Step[] = ["country", "region", "length", "destinations", "route", "budget", "interests", "experiences", "sports", "style", "gems"];
 
 export default function QuizPage() {
   const router = useRouter();
   const [stepIndex, setStepIndex] = useState(0);
   const [preferences, setPreferences] = useState<TripPreferences>(defaultPreferences);
+  const [draggedRouteId, setDraggedRouteId] = useState<string | null>(null);
   const step = steps[stepIndex];
   const progress = Math.round(((stepIndex + 1) / steps.length) * 100);
 
@@ -87,6 +89,34 @@ export default function QuizPage() {
 
   function resetExperienceLikes() {
     setPreferences((current) => ({ ...current, experienceLikes: [] }));
+  }
+
+  function addDestination(cityId: string) {
+    setPreferences((current) => ({
+      ...current,
+      destinationLikes: current.destinationLikes.includes(cityId) ? current.destinationLikes : [...current.destinationLikes, cityId]
+    }));
+  }
+
+  function reorderDestination(targetCityId: string) {
+    if (!draggedRouteId || draggedRouteId === targetCityId) return;
+    setPreferences((current) => {
+      const fromIndex = current.destinationLikes.indexOf(draggedRouteId);
+      const toIndex = current.destinationLikes.indexOf(targetCityId);
+      if (fromIndex < 0 || toIndex < 0) return current;
+      const destinationLikes = [...current.destinationLikes];
+      const [movedCity] = destinationLikes.splice(fromIndex, 1);
+      destinationLikes.splice(toIndex, 0, movedCity);
+      return { ...current, destinationLikes };
+    });
+    setDraggedRouteId(null);
+  }
+
+  function generateRecommendedRoute() {
+    setPreferences((current) => ({
+      ...current,
+      destinationLikes: recommendRouteOrder(current.destinationLikes, current)
+    }));
   }
 
   function next() {
@@ -192,6 +222,25 @@ export default function QuizPage() {
               </Panel>
             ) : null}
 
+            {step === "route" ? (
+              <Panel title="Build My Route.">
+                <RouteBuilder
+                  preferences={preferences}
+                  selectedCities={selectedCities}
+                  draggedRouteId={draggedRouteId}
+                  onDragStart={setDraggedRouteId}
+                  onDragEnd={() => setDraggedRouteId(null)}
+                  onDrop={reorderDestination}
+                  onAdd={addDestination}
+                  onRemove={(cityId) => chooseDestination(cityId, false)}
+                  onCountryChange={(country) => setPreferences((current) => ({ ...current, country, region: regionForCountry(country), countryRegion: allCountryRegions }))}
+                  onRegionChange={(countryRegion) => setPreferences((current) => ({ ...current, countryRegion }))}
+                  onPaceChange={(pace) => setPreferences((current) => ({ ...current, pace }))}
+                  onRecommend={generateRecommendedRoute}
+                />
+              </Panel>
+            ) : null}
+
             {step === "budget" ? (
               <Panel title="What is the spend posture?">
                 <OptionGrid items={budgets} selected={[preferences.budget]} onSelect={(budget) => setPreferences({ ...preferences, budget })} />
@@ -236,12 +285,6 @@ export default function QuizPage() {
             {step === "style" ? (
               <Panel title="Choose the holiday style.">
                 <OptionGrid items={travelStyles} selected={[preferences.style]} onSelect={(style) => setPreferences({ ...preferences, style })} />
-              </Panel>
-            ) : null}
-
-            {step === "pace" ? (
-              <Panel title="Choose the route pace.">
-                <OptionGrid items={paces} selected={[preferences.pace]} onSelect={(pace) => setPreferences({ ...preferences, pace })} />
               </Panel>
             ) : null}
 
@@ -294,6 +337,144 @@ function Panel({ title, children }: { title: string; children: ReactNode }) {
       <Heart size={20} aria-hidden="true" />
       <h2 className="mt-5 font-serif text-3xl leading-tight sm:text-5xl">{title}</h2>
       <div className="mt-8">{children}</div>
+    </div>
+  );
+}
+
+function RouteBuilder({
+  preferences,
+  selectedCities,
+  draggedRouteId,
+  onDragStart,
+  onDragEnd,
+  onDrop,
+  onAdd,
+  onRemove,
+  onCountryChange,
+  onRegionChange,
+  onPaceChange,
+  onRecommend
+}: {
+  preferences: TripPreferences;
+  selectedCities: City[];
+  draggedRouteId: string | null;
+  onDragStart: (cityId: string) => void;
+  onDragEnd: () => void;
+  onDrop: (cityId: string) => void;
+  onAdd: (cityId: string) => void;
+  onRemove: (cityId: string) => void;
+  onCountryChange: (country: CountryName) => void;
+  onRegionChange: (countryRegion: string) => void;
+  onPaceChange: (pace: Pace) => void;
+  onRecommend: () => void;
+}) {
+  const addableCities = cities.filter(
+    (city) =>
+      city.country === preferences.country &&
+      (preferences.countryRegion === allCountryRegions || city.countryRegion === preferences.countryRegion) &&
+      !preferences.destinationLikes.includes(city.id)
+  );
+
+  return (
+    <div className="grid gap-5">
+      <div className="grid gap-3 sm:grid-cols-2">
+        <label className="grid gap-2 text-sm text-ink/62">
+          Add from country
+          <select className="focus-ring h-11 rounded-sm border border-black/10 bg-white px-3 text-ink" value={preferences.country} onChange={(event) => onCountryChange(event.target.value as CountryName)}>
+            {countries.map((country) => (
+              <option key={country} value={country}>
+                {country}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="grid gap-2 text-sm text-ink/62">
+          Region
+          <select className="focus-ring h-11 rounded-sm border border-black/10 bg-white px-3 text-ink" value={preferences.countryRegion} onChange={(event) => onRegionChange(event.target.value)}>
+            {(countryRegions[preferences.country] ?? [allCountryRegions]).map((region) => (
+              <option key={region} value={region}>
+                {region}
+              </option>
+            ))}
+          </select>
+        </label>
+      </div>
+
+      <select
+        className="focus-ring h-11 rounded-sm border border-black/10 bg-white px-3 text-ink"
+        defaultValue=""
+        onChange={(event) => {
+          onAdd(event.target.value);
+          event.currentTarget.value = "";
+        }}
+      >
+        <option value="" disabled>
+          Add destination from any country
+        </option>
+        {addableCities.map((city) => (
+          <option key={city.id} value={city.id}>
+            {city.name} · {city.country} · {city.countryRegion}
+          </option>
+        ))}
+      </select>
+
+      <div className="grid gap-3">
+        {selectedCities.length ? (
+          selectedCities.map((city, index) => (
+            <article
+              key={city.id}
+              draggable
+              onDragStart={() => onDragStart(city.id)}
+              onDragOver={(event) => event.preventDefault()}
+              onDrop={() => onDrop(city.id)}
+              onDragEnd={onDragEnd}
+              className={`flex items-center gap-3 border border-black/10 bg-white p-3 shadow-[0_18px_40px_rgba(23,19,15,0.07)] transition ${draggedRouteId === city.id ? "scale-[0.99] border-brass/70 opacity-70" : "hover:border-brass/50"}`}
+            >
+              <button className="focus-ring flex h-10 w-10 shrink-0 items-center justify-center rounded-sm border border-black/10 text-ink/50" aria-label={`Drag ${city.name}`}>
+                <GripVertical size={16} aria-hidden="true" />
+              </button>
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brass/15 text-sm font-semibold text-brass">{index + 1}</div>
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-base font-semibold text-ink">{city.name}</p>
+                <p className="text-sm text-ink/52">{city.country} · {city.countryRegion}</p>
+              </div>
+              <button className="focus-ring flex h-10 w-10 shrink-0 items-center justify-center rounded-sm border border-black/10 text-ink/55 transition hover:bg-ink hover:text-ivory" onClick={() => onRemove(city.id)} aria-label={`Remove ${city.name}`}>
+                <X size={15} aria-hidden="true" />
+              </button>
+            </article>
+          ))
+        ) : (
+          <div className="border border-black/10 bg-white/75 p-5 text-sm leading-7 text-ink/58">
+            Add at least two destinations to build a multi-city route. You can keep browsing by country, but the final trip can combine any countries.
+          </div>
+        )}
+      </div>
+
+      <div className="grid gap-3 border border-black/10 bg-white/70 p-4">
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-black/45">Trip pace</p>
+        <div className="grid gap-2 sm:grid-cols-3">
+          {paces.map((pace) => (
+            <button
+              key={pace}
+              className={`focus-ring min-h-11 rounded-sm border px-3 text-sm font-semibold transition ${
+                preferences.pace === pace ? "border-ink bg-ink text-ivory" : "border-black/10 bg-white text-ink/64 hover:border-brass/60"
+              }`}
+              onClick={() => onPaceChange(pace)}
+            >
+              {pace}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <button
+        className="focus-ring inline-flex min-h-12 items-center justify-center gap-2 rounded-sm bg-ink px-5 text-sm font-semibold text-ivory shadow-[0_18px_45px_rgba(23,19,15,0.16)] transition hover:-translate-y-0.5 hover:bg-graphite disabled:opacity-45"
+        onClick={onRecommend}
+        disabled={selectedCities.length < 2}
+      >
+        <Sparkles size={16} aria-hidden="true" />
+        Generate recommended route
+      </button>
     </div>
   );
 }
