@@ -9,22 +9,28 @@ import {
   budgets,
   buildItinerary,
   cities,
+  countries,
+  countryRegions,
   defaultPreferences,
   experiences,
+  gemPreferences,
   interests,
-  regions,
+  paces,
   sports,
   travelStyles,
+  allCountryRegions,
   type City,
+  type CountryName,
   type Experience,
   type Interest,
+  type Pace,
   type Sport,
   type TripPreferences
 } from "@/lib/trip-data";
 import { writeItinerary, writePreferences } from "@/lib/storage";
 
-type Step = "region" | "destinations" | "budget" | "interests" | "experiences" | "sports" | "style";
-const steps: Step[] = ["region", "destinations", "budget", "interests", "experiences", "sports", "style"];
+type Step = "country" | "region" | "length" | "destinations" | "budget" | "interests" | "experiences" | "sports" | "style" | "pace" | "gems";
+const steps: Step[] = ["country", "region", "length", "destinations", "budget", "interests", "experiences", "sports", "style", "pace", "gems"];
 
 export default function QuizPage() {
   const router = useRouter();
@@ -34,7 +40,10 @@ export default function QuizPage() {
   const progress = Math.round(((stepIndex + 1) / steps.length) * 100);
 
   const preview = useMemo(() => buildItinerary(preferences), [preferences]);
-  const destinationCards = useMemo(() => cities.filter((city) => city.region === preferences.region), [preferences.region]);
+  const destinationCards = useMemo(
+    () => cities.filter((city) => city.country === preferences.country && (preferences.countryRegion === allCountryRegions || city.countryRegion === preferences.countryRegion)),
+    [preferences.country, preferences.countryRegion]
+  );
   const experienceCards = useMemo(() => {
     const regionCityIds = new Set(destinationCards.map((city) => city.id));
     return experiences.filter((experience) => regionCityIds.has(experience.cityId));
@@ -103,12 +112,34 @@ export default function QuizPage() {
 
         <div className="premium-panel self-center p-3 sm:p-5">
           <div className="min-h-[430px] bg-white/80 p-5 text-ink shadow-[inset_0_1px_rgba(255,255,255,0.65)] sm:p-8">
-            {step === "region" ? (
-              <Panel title="Where should we point the lounge pass?">
+            {step === "country" ? (
+              <Panel title="Which country should we build around?">
                 <OptionGrid
-                  items={regions}
-                  selected={[preferences.region]}
-                  onSelect={(region) => setPreferences({ ...preferences, region, destinationLikes: [], experienceLikes: [] })}
+                  items={countries}
+                  selected={[preferences.country]}
+                  onSelect={(country) => setPreferences({ ...preferences, country, region: regionForCountry(country), countryRegion: allCountryRegions, destinationLikes: [], experienceLikes: [] })}
+                />
+              </Panel>
+            ) : null}
+
+            {step === "region" ? (
+              <Panel title="Which region should we prioritise?">
+                <OptionGrid
+                  items={countryRegions[preferences.country] ?? [allCountryRegions]}
+                  selected={[preferences.countryRegion]}
+                  onSelect={(countryRegion) => setPreferences({ ...preferences, countryRegion, destinationLikes: [], experienceLikes: [] })}
+                />
+              </Panel>
+            ) : null}
+
+            {step === "length" ? (
+              <Panel title="How long is the trip?">
+                <NumberPanel
+                  label="Nights"
+                  value={preferences.tripLength}
+                  min={3}
+                  max={14}
+                  onChange={(tripLength) => setPreferences({ ...preferences, tripLength })}
                 />
               </Panel>
             ) : null}
@@ -181,8 +212,20 @@ export default function QuizPage() {
             ) : null}
 
             {step === "style" ? (
-              <Panel title="Choose the pace of the trip.">
+              <Panel title="Choose the holiday style.">
                 <OptionGrid items={travelStyles} selected={[preferences.style]} onSelect={(style) => setPreferences({ ...preferences, style })} />
+              </Panel>
+            ) : null}
+
+            {step === "pace" ? (
+              <Panel title="Choose the route pace.">
+                <OptionGrid items={paces} selected={[preferences.pace]} onSelect={(pace) => setPreferences({ ...preferences, pace })} />
+              </Panel>
+            ) : null}
+
+            {step === "gems" ? (
+              <Panel title="How famous should the route feel?">
+                <OptionGrid items={gemPreferences} selected={[preferences.gemPreference]} onSelect={(gemPreference) => setPreferences({ ...preferences, gemPreference })} />
               </Panel>
             ) : null}
 
@@ -190,7 +233,7 @@ export default function QuizPage() {
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-black/50">Live route preview</p>
               <p className="mt-3 text-xl font-semibold">{preview.cities.map((city) => city.name).join("  /  ")}</p>
               <p className="mt-2 text-sm text-black/48">
-                {preferences.destinationLikes.length} destinations liked · {preferences.experienceLikes.length} experiences saved
+                {preferences.country} · {preferences.tripLength} nights · {preferences.destinationLikes.length} destinations liked · {preferences.experienceLikes.length} experiences saved
               </p>
             </div>
           </div>
@@ -217,6 +260,10 @@ export default function QuizPage() {
 
 function cityNameForExperience(experience: Experience) {
   return cities.find((city) => city.id === experience.cityId)?.name ?? "Selected city";
+}
+
+function regionForCountry(country: CountryName) {
+  return cities.find((city) => city.country === country)?.region ?? "Europe";
 }
 
 function Panel({ title, children }: { title: string; children: ReactNode }) {
@@ -256,6 +303,41 @@ function OptionGrid<T extends string>({
           </button>
         );
       })}
+    </div>
+  );
+}
+
+function NumberPanel({
+  label,
+  value,
+  min,
+  max,
+  onChange
+}: {
+  label: string;
+  value: number;
+  min: number;
+  max: number;
+  onChange: (value: number) => void;
+}) {
+  return (
+    <div className="grid gap-4">
+      <div className="flex items-center justify-between border border-black/10 bg-white p-4 shadow-[0_18px_40px_rgba(23,19,15,0.08)]">
+        <span className="text-sm font-semibold uppercase tracking-[0.18em] text-black/50">{label}</span>
+        <span className="font-serif text-5xl">{value}</span>
+      </div>
+      <input
+        className="accent-brass"
+        type="range"
+        min={min}
+        max={max}
+        value={value}
+        onChange={(event) => onChange(Number(event.target.value))}
+      />
+      <div className="flex justify-between text-xs uppercase tracking-[0.16em] text-black/45">
+        <span>{min} nights</span>
+        <span>{max} nights</span>
+      </div>
     </div>
   );
 }

@@ -16,7 +16,7 @@ export default function CustomisePage() {
     setItinerary(normalizeItinerary(readItinerary()));
   }, []);
 
-  const cityPool = useMemo(() => cities.filter((city) => city.region === itinerary.cities[0]?.region), [itinerary.cities]);
+  const cityPool = useMemo(() => cities.filter((city) => city.country === itinerary.cities[0]?.country), [itinerary.cities]);
   const selectedExperienceIds = useMemo(() => new Set((itinerary.selectedExperiences ?? []).map((experience) => experience.id)), [itinerary.selectedExperiences]);
   const routeCityIds = useMemo(() => new Set(itinerary.cities.map((city) => city.id)), [itinerary.cities]);
   const availableExperiences = useMemo(
@@ -148,6 +148,9 @@ export default function CustomisePage() {
                             <p className="text-sm text-brass">{city.country} · {city.region}</p>
                             <h3 className="mt-2 font-serif text-4xl text-ink">{city.name}</h3>
                             <p className="mt-3 max-w-2xl leading-7 text-ink/64">{city.headline}</p>
+                            {city.recommendationReason ? (
+                              <p className="mt-3 border-l-2 border-brass/50 bg-white/60 px-3 py-2 text-sm leading-6 text-ink/58">{city.recommendationReason}</p>
+                            ) : null}
                             <Link href={`/destinations/${city.id}`} className="focus-ring mt-4 inline-flex items-center gap-2 rounded-sm text-sm font-semibold text-brass transition hover:text-ink">
                               Destination dossier <ArrowRight size={14} aria-hidden="true" />
                             </Link>
@@ -233,8 +236,12 @@ export default function CustomisePage() {
                 {itinerary.transport.map((option) => (
                   <article key={`${option.from}-${option.to}`} className="border-t border-black/10 pt-3">
                     <p className="font-semibold text-ink">{option.from} to {option.to}</p>
-                    <p className="mt-1 text-sm text-brass">{option.mode} · {option.duration}</p>
-                    <p className="mt-2 text-sm leading-6 text-ink/58">{option.note}</p>
+                    <p className="mt-1 text-sm text-brass">Approx. {option.distanceKm}km · Recommended: {option.recommended}</p>
+                    <p className="mt-2 text-sm leading-6 text-ink/58">
+                      Train: {option.trainAvailable ? option.trainTime : "not available / not recommended"} · Flight: {option.flightTime}
+                      {option.ferryTime ? ` · Ferry: ${option.ferryTime}` : ""}
+                    </p>
+                    <p className="mt-2 text-xs leading-5 text-ink/45">{option.note}</p>
                   </article>
                 ))}
               </div>

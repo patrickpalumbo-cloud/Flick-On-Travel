@@ -37,6 +37,11 @@ export function ItineraryView({ itinerary, editable = false, cityOptions = [], o
               <span className="border border-black/10 bg-white/70 px-3 py-1 text-sm text-ink/70">{city.nights} nights</span>
             </div>
             <p className="mt-5 min-h-20 leading-7 text-ink/64">{city.headline}</p>
+            {city.recommendationReason ? (
+              <p className="mt-4 border-l-2 border-brass/50 bg-white/60 px-3 py-2 text-sm leading-6 text-ink/62">
+                {city.recommendationReason}
+              </p>
+            ) : null}
             <Link
               href={`/destinations/${city.id}`}
               className="focus-ring mt-4 inline-flex items-center gap-2 rounded-sm text-sm font-semibold text-brass transition hover:text-ink"
@@ -148,11 +153,32 @@ export function ItineraryView({ itinerary, editable = false, cityOptions = [], o
             {itinerary.transport.map((option) => (
               <article key={`${option.from}-${option.to}`} className="premium-panel p-5">
                 <p className="font-semibold text-ink">{option.from} to {option.to}</p>
-                <p className="mt-2 text-sm text-brass">{option.mode} · {option.duration}</p>
-                <p className="mt-3 text-sm leading-6 text-ink/60">{option.note}</p>
+                <p className="mt-2 text-sm text-brass">Distance: approx. {option.distanceKm}km</p>
+                <div className="mt-3 grid gap-2 text-sm leading-6 text-ink/62">
+                  <p>Train: {option.trainAvailable ? option.trainTime : "not available / not recommended"}</p>
+                  {option.ferryTime ? <p>Ferry: {option.ferryTime}</p> : null}
+                  <p>Flight: {option.flightTime}</p>
+                  <p className="font-semibold text-ink">Recommended: {option.recommended}</p>
+                </div>
+                <p className="mt-3 text-xs leading-5 text-ink/48">{option.note}</p>
               </article>
             ))}
           </div>
+        </div>
+      </section>
+
+      <section className="premium-panel p-5">
+        <p className="text-sm font-semibold uppercase tracking-[0.22em] text-brass">Route timeline</p>
+        <div className="mt-5 flex flex-col gap-3 md:flex-row md:items-center">
+          {itinerary.cities.map((city, index) => (
+            <div key={city.id} className="flex items-center gap-3">
+              <div className="border border-black/10 bg-white px-4 py-3 shadow-[0_12px_30px_rgba(93,72,48,0.08)]">
+                <p className="text-xs uppercase tracking-[0.16em] text-black/45">Destination {index + 1}</p>
+                <p className="font-semibold text-ink">{city.name}</p>
+              </div>
+              {index < itinerary.cities.length - 1 ? <ArrowRight className="hidden text-brass md:block" size={18} aria-hidden="true" /> : null}
+            </div>
+          ))}
         </div>
       </section>
 

@@ -210,8 +210,8 @@ export function getDestinationGuides() {
 
 export function getDestinationGuide(id: string): DestinationGuide | undefined {
   const city = cities.find((item) => item.id === id);
-  const details = guideDetails[id];
-  if (!city || !details) return undefined;
+  if (!city) return undefined;
+  const details = guideDetails[id] ?? fallbackGuideDetails(city);
 
   return {
     city,
@@ -222,10 +222,33 @@ export function getDestinationGuide(id: string): DestinationGuide | undefined {
 }
 
 function buildGallery(cityId: string, cityName: string): DestinationImage[] {
-  const gallery = destinationGalleries[cityId] ?? [];
+  const gallery = destinationGalleries[cityId] ?? destinationGalleries[fallbackGalleryId(cityName)] ?? destinationGalleries.paris;
 
   return gallery.map((image) => ({
     ...image,
     alt: `${cityName} ${image.category.toLowerCase()} cinematic travel imagery`
   }));
+}
+
+function fallbackGuideDetails(city: City): Omit<DestinationGuide, "city" | "experiences" | "gallery"> {
+  return {
+    image: "/lounge-hero.jpg",
+    imageAlt: `Premium travel imagery for ${city.name}`,
+    bestTime: `Estimated MVP guidance: choose shoulder seasons where possible for ${city.name}, then align dates around major events, weather and hotel value.`,
+    events: city.sports.length ? city.sports.map((sport) => `${sport} calendar windows`) : ["Seasonal festivals", "Food and culture weekends", "Local event windows"],
+    nightlife: city.tags.includes("nightlife") ? ["Hotel lounges", "Late dining rooms", "Neighbourhood bars"] : ["Low-key hotel bar", "Sunset drinks", "Dinner-led evenings"],
+    localExperiences: city.activities,
+    itinerarySuggestions: [`${city.nights} nights: ${city.activities.slice(0, 2).join(" and ")}`, `Pair with nearby ${city.country} destinations for a modular route`, `Use as a ${city.prominence} stop in a smarter route`]
+  };
+}
+
+function fallbackGalleryId(cityName: string) {
+  if (["Tokyo", "Kyoto", "Osaka", "Hakone", "Niseko", "Sapporo", "Kanazawa", "Naoshima"].includes(cityName)) return "tokyo";
+  if (["Paris", "Nice", "Monaco", "Lyon", "Bordeaux", "Provence", "Chamonix", "Annecy"].includes(cityName)) return "paris";
+  if (["New York", "Miami", "Las Vegas", "Los Angeles", "San Francisco", "Aspen", "Charleston", "Austin", "Maui"].includes(cityName)) return "new-york";
+  if (["Sydney", "Melbourne", "Byron Bay", "Gold Coast", "Whitsundays", "Tasmania", "Perth", "Adelaide", "Noosa"].includes(cityName)) return "melbourne";
+  if (["London", "Bath", "Cotswolds", "Edinburgh", "St Andrews", "Manchester", "Cornwall", "Lake District"].includes(cityName)) return "london";
+  if (["Barcelona", "Madrid", "Seville", "Ibiza", "Mallorca", "San Sebastian", "Valencia", "Granada"].includes(cityName)) return "miami";
+  if (["Rome", "Florence", "Venice", "Milan", "Lake Como", "Naples", "Amalfi Coast", "Puglia", "Bologna", "Sicily"].includes(cityName)) return "monaco";
+  return "paris";
 }
