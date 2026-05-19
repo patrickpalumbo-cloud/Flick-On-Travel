@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, CalendarDays, Search, SlidersHorizontal } from "lucide-react";
 import { TripShell } from "@/components/trip-shell";
-import { countries, destinations, type CountryName, type Destination, type Interest } from "@/lib/destinations";
+import { countries, destinations, getDestinationHeroImage, type CountryName, type Destination, type Interest } from "@/lib/destinations";
 
 const styleFilters: Array<{ label: string; value: Interest }> = [
   { label: "Beach", value: "beach" },
@@ -207,15 +207,13 @@ function CountryDestinationRow({ country, destinations }: { country: CountryName
 function DestinationCard({ destination }: { destination: Destination }) {
   const [imageFailed, setImageFailed] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
-  const image = destination.imageGallery[0];
-  const imageSrc = typeof image?.src === "string" ? image.src.trim() : "";
-  const showFallback = !imageSrc || imageFailed;
+  const heroImage = getDestinationHeroImage(destination);
 
   return (
     <article className="premium-panel min-w-[82vw] max-w-[82vw] snap-start overflow-hidden transition duration-300 hover:-translate-y-1 sm:min-w-[360px] sm:max-w-[360px]">
       <Link href={`/destinations/${destination.id}`} className="block">
         <div className="relative h-64 overflow-hidden bg-[radial-gradient(circle_at_30%_20%,rgba(184,150,87,0.24),transparent_30%),linear-gradient(135deg,#fffaf1,#e8ddce)]">
-          {showFallback ? (
+          {!heroImage || imageFailed ? (
             <div className="absolute inset-0 grid place-items-center p-6 text-center">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.24em] text-brass">{destination.country}</p>
@@ -232,8 +230,8 @@ function DestinationCard({ destination }: { destination: Destination }) {
                 aria-hidden="true"
               />
               <Image
-                src={imageSrc}
-                alt={image.alt}
+                src={heroImage.src}
+                alt={heroImage.alt}
                 fill
                 sizes="(max-width: 640px) 82vw, 360px"
                 loading="lazy"

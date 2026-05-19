@@ -6,6 +6,7 @@ import type { LucideIcon } from "lucide-react";
 import { TripShell } from "@/components/trip-shell";
 import { DestinationGallery } from "@/components/destination-gallery";
 import { getDestinationGuide, getDestinationGuides } from "@/lib/destination-guides";
+import { destinations, getDestinationHeroImage } from "@/lib/destinations";
 
 export function generateStaticParams() {
   return getDestinationGuides().map((guide) => ({ id: guide.city.id }));
@@ -24,7 +25,8 @@ export function generateMetadata({ params }: { params: { id: string } }) {
 export default function DestinationPage({ params }: { params: { id: string } }) {
   const guide = getDestinationGuide(params.id);
   if (!guide) notFound();
-  const heroImage = guide.gallery.find((image) => typeof image.src === "string" && image.src.trim().length > 0);
+  const destination = destinations.find((item) => item.id === params.id);
+  const heroImage = destination ? getDestinationHeroImage(destination) : null;
 
   return (
     <TripShell>

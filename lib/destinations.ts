@@ -74,12 +74,21 @@ export type Destination = {
   idealNights: number;
   nearbyDestinations: string[];
   imageGallery: ImageGalleryItem[];
+  heroImage?: string;
   sportsExperiences: Sport[];
   bestFor: string[];
   airportCode?: string;
   lat: number;
   lon: number;
   activities: string[];
+};
+
+export type DestinationHeroImage = {
+  src: string;
+  alt: string;
+  caption: string;
+  category: DestinationImageCategory;
+  source: "imageGallery" | "heroImage";
 };
 
 export type RouteConnection = {
@@ -419,7 +428,7 @@ export function validateDuplicateHeroImagesByCountry(items: Destination[] = dest
   const seen = new Map<string, string[]>();
 
   items.forEach((destination) => {
-    const heroSrc = destination.imageGallery[0]?.src.trim();
+    const heroSrc = getDestinationHeroImage(destination)?.src;
     if (!heroSrc) return;
     const key = `${destination.country}::${heroSrc}`;
     seen.set(key, [...(seen.get(key) ?? []), destination.id]);
@@ -430,6 +439,35 @@ export function validateDuplicateHeroImagesByCountry(items: Destination[] = dest
     const [country, src] = key.split("::") as [CountryName, string];
     return [{ country, src, destinationIds }];
   });
+}
+
+export function getDestinationHeroImage(destination: Destination): DestinationHeroImage | null {
+  const galleryHero = destination.imageGallery[0];
+  const gallerySrc = typeof galleryHero?.src === "string" ? galleryHero.src.trim() : "";
+
+  if (gallerySrc) {
+    return {
+      src: gallerySrc,
+      alt: galleryHero.alt,
+      caption: galleryHero.caption,
+      category: galleryHero.category,
+      source: "imageGallery"
+    };
+  }
+
+  const heroImage = typeof destination.heroImage === "string" ? destination.heroImage.trim() : "";
+
+  if (heroImage) {
+    return {
+      src: heroImage,
+      alt: `${destination.name} destination imagery`,
+      caption: `${destination.name} destination view`,
+      category: "Landscape",
+      source: "heroImage"
+    };
+  }
+
+  return null;
 }
 
 function toPopularity(prominence: DestinationProminence): DestinationPopularity {
