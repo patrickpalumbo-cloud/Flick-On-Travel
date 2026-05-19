@@ -225,9 +225,12 @@ function buildGallery(cityId: string, cityName: string): DestinationImage[] {
   const destination = destinations.find((item) => item.id === cityId);
   const gallery = destination?.imageGallery ?? destinationGalleries[cityId] ?? [];
 
-  return gallery.map((image) => ({
+  return gallery.map((image): DestinationImage => ({
     ...image,
-    alt: "alt" in image ? image.alt : `${cityName} ${image.category.toLowerCase()} cinematic travel imagery`
+    alt:
+      "alt" in image && typeof image.alt === "string" && image.alt.trim().length > 0
+        ? image.alt
+        : `${cityName} ${image.category.toLowerCase()} cinematic travel imagery`
   }));
 }
 
