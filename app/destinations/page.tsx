@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, CalendarDays, Search, SlidersHorizontal } from "lucide-react";
 import { TripShell } from "@/components/trip-shell";
@@ -205,6 +206,7 @@ function CountryDestinationRow({ country, destinations }: { country: CountryName
 
 function DestinationCard({ destination }: { destination: Destination }) {
   const [imageFailed, setImageFailed] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false);
   const image = destination.imageGallery[0];
   const showFallback = !image?.src || image.isFallback || imageFailed;
 
@@ -217,16 +219,28 @@ function DestinationCard({ destination }: { destination: Destination }) {
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.24em] text-brass">{destination.country}</p>
                 <p className="mt-3 font-serif text-4xl leading-none text-ink">{destination.name}</p>
-                <p className="mt-3 text-xs uppercase tracking-[0.16em] text-ink/45">Destination imagery pending</p>
+                <p className="mt-3 text-xs uppercase tracking-[0.16em] text-ink/45">Curated imagery unavailable</p>
               </div>
             </div>
           ) : (
-            <img
-              src={image.src}
-              alt={image.alt}
-              onError={() => setImageFailed(true)}
-              className="h-full w-full object-cover transition duration-700 hover:scale-105"
-            />
+            <>
+              <div
+                className={`absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(184,150,87,0.2),transparent_30%),linear-gradient(135deg,#fffaf1,#e8ddce)] transition duration-500 ${
+                  imageLoaded ? "opacity-0" : "opacity-100"
+                }`}
+                aria-hidden="true"
+              />
+              <Image
+                src={image.src}
+                alt={image.alt}
+                fill
+                sizes="(max-width: 640px) 82vw, 360px"
+                loading="lazy"
+                onLoad={() => setImageLoaded(true)}
+                onError={() => setImageFailed(true)}
+                className={`object-cover transition duration-700 hover:scale-105 ${imageLoaded ? "opacity-100" : "opacity-0"}`}
+              />
+            </>
           )}
           <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 via-black/12 to-transparent p-4">
             <span className="inline-flex bg-white/90 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-ink">

@@ -331,7 +331,7 @@ function toPopularity(prominence: DestinationProminence): DestinationPopularity 
 function destinationImageGallery(destination: DestinationSeed): ImageGalleryItem[] {
   const destinationSlug = slug(destination.name);
   const curated = curatedDestinationImages[destinationSlug];
-  const images = curated ?? neutralFallbackGallery(destination);
+  const images = (curated ?? neutralFallbackGallery(destination)).slice(0, 4);
 
   return images.map((image) => ({
     ...image,
@@ -343,11 +343,10 @@ function destinationImageGallery(destination: DestinationSeed): ImageGalleryItem
 
 function neutralFallbackGallery(destination: DestinationSeed): Array<Omit<ImageGalleryItem, "alt">> {
   return [
-    { src: "", category: "Landscape", caption: `${destination.name} landmark image pending`, isFallback: true },
-    { src: "", category: "Food", caption: `${destination.name} food and lifestyle image pending`, isFallback: true },
-    { src: "", category: destination.sportsExperiences.length ? "Sports" : "Culture", caption: `${destination.name} ${destination.sportsExperiences[0] ?? "culture"} image pending`, isFallback: true },
-    { src: "", category: "Luxury", caption: `${destination.name} luxury travel image pending`, isFallback: true },
-    { src: "", category: destination.tags.includes("nightlife") ? "Nightlife" : "Culture", caption: `${destination.name} evening image pending`, isFallback: true }
+    { src: "", category: "Landscape", caption: `${destination.name} landmark imagery unavailable`, isFallback: true },
+    { src: "", category: "Food", caption: `${destination.name} food and lifestyle imagery unavailable`, isFallback: true },
+    { src: "", category: destination.sportsExperiences.length ? "Sports" : "Culture", caption: `${destination.name} ${destination.sportsExperiences[0] ?? "culture"} imagery unavailable`, isFallback: true },
+    { src: "", category: "Luxury", caption: `${destination.name} luxury travel imagery unavailable`, isFallback: true }
   ];
 }
 
