@@ -122,21 +122,6 @@ const globalRegionByCountry: Record<CountryName, Region> = {
   Australia: "Asia-Pacific"
 };
 
-const fallbackImageUrlByCountry: Record<CountryName, string> = {
-  Italy: "https://images.unsplash.com/photo-1552832230-c0197dd311b5?auto=format&fit=crop&w=1800&q=82",
-  France: "https://images.unsplash.com/photo-1550340499-a6c60fc8287c?auto=format&fit=crop&w=1800&q=82",
-  Spain: "https://images.unsplash.com/photo-1539037116277-4db20889f2d4?auto=format&fit=crop&w=1800&q=82",
-  Germany: "https://images.unsplash.com/photo-1560969184-10fe8719e047?auto=format&fit=crop&w=1800&q=82",
-  UK: "https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?auto=format&fit=crop&w=1800&q=82",
-  Portugal: "https://images.unsplash.com/photo-1585208798174-6cedd86e019a?auto=format&fit=crop&w=1800&q=82",
-  Greece: "https://images.unsplash.com/photo-1570077188670-e3a8d69ac5ff?auto=format&fit=crop&w=1800&q=82",
-  Japan: "https://images.unsplash.com/photo-1513407030348-c983a97b98d8?auto=format&fit=crop&w=1800&q=82",
-  USA: "https://images.unsplash.com/photo-1570304816841-906a17d7b067?auto=format&fit=crop&w=1800&q=82",
-  Australia: "https://images.unsplash.com/photo-1595434971780-79d5c20c5090?auto=format&fit=crop&w=1800&q=82"
-};
-
-
-
 function destinationSeed(name: string, country: CountryName, countryRegion: string, nights: number, tags: Interest[], sports: Sport[], prominence: DestinationProminence, lat: number, lon: number, headline: string, activities: string[]): DestinationSeed {
   return { name, country, countryRegion, idealNights: nights, tags, sportsExperiences: sports, prominence, lat, lon, description: headline, activities };
 }
@@ -242,6 +227,93 @@ const airportCodes: Record<string, string> = {
   rome: "FCO", florence: "FLR", venice: "VCE", milan: "MXP", naples: "NAP", paris: "CDG", nice: "NCE", monaco: "NCE", lyon: "LYS", bordeaux: "BOD", barcelona: "BCN", madrid: "MAD", seville: "SVQ", ibiza: "IBZ", mallorca: "PMI", valencia: "VLC", berlin: "BER", munich: "MUC", hamburg: "HAM", frankfurt: "FRA", london: "LHR", edinburgh: "EDI", manchester: "MAN", lisbon: "LIS", porto: "OPO", algarve: "FAO", madeira: "FNC", azores: "PDL", athens: "ATH", santorini: "JTR", mykonos: "JMK", crete: "HER", corfu: "CFU", tokyo: "HND", kyoto: "KIX", osaka: "KIX", hakone: "HND", niseko: "CTS", sapporo: "CTS", kanazawa: "KMQ", "new-york": "JFK", miami: "MIA", "las-vegas": "LAS", "los-angeles": "LAX", "san-francisco": "SFO", aspen: "ASE", charleston: "CHS", austin: "AUS", maui: "OGG", sydney: "SYD", melbourne: "MEL", "byron-bay": "BNK", "gold-coast": "OOL", whitsundays: "HTI", tasmania: "HBA", perth: "PER", adelaide: "ADL"
 };
 
+const destinationHeroImageUrlById: Record<string, string> = {
+  rome: "https://images.unsplash.com/photo-1552832230-c0197dd311b5?auto=format&fit=crop&w=1800&q=82",
+  florence: "https://images.unsplash.com/photo-1476362174823-3a23f4aa6d76?auto=format&fit=crop&w=1800&q=82",
+  venice: "https://images.unsplash.com/photo-1523906834658-6e24ef2386f9?auto=format&fit=crop&w=1800&q=82",
+  milan: "https://images.unsplash.com/photo-1610016302534-6f67f1c968d8?auto=format&fit=crop&w=1800&q=82",
+  "lake-como": "https://images.unsplash.com/photo-1586974726316-c6302de6a160?auto=format&fit=crop&w=1800&q=82",
+  naples: "https://images.unsplash.com/photo-1590663964384-e3bfac60bed7?auto=format&fit=crop&w=1800&q=82",
+  "amalfi-coast": "https://images.unsplash.com/photo-1533656338503-b22f63e96cd8?auto=format&fit=crop&w=1800&q=82",
+  puglia: "https://images.unsplash.com/photo-1536782025326-3b006b059aa7?auto=format&fit=crop&w=1800&q=82",
+  bologna: "https://images.unsplash.com/photo-1635469019177-7264fc1e013c?auto=format&fit=crop&w=1800&q=82",
+  sicily: "https://images.unsplash.com/photo-1523365154888-8a758819b722?auto=format&fit=crop&w=1800&q=82",
+  paris: "https://images.unsplash.com/photo-1499856871958-5b9627545d1a?auto=format&fit=crop&w=1800&q=82",
+  nice: "https://images.unsplash.com/photo-1612301658238-8ca9921b91ce?auto=format&fit=crop&w=1800&q=82",
+  monaco: "https://images.unsplash.com/photo-1530277414267-58f36f6fba72?auto=format&fit=crop&w=1800&q=82",
+  lyon: "https://images.unsplash.com/photo-1537015125382-74e1f1c99ac4?auto=format&fit=crop&w=1800&q=82",
+  bordeaux: "https://images.unsplash.com/photo-1493564738392-d148cfbd6eda?auto=format&fit=crop&w=1800&q=82",
+  provence: "https://images.unsplash.com/photo-1592651563903-4b13924f3c06?auto=format&fit=crop&w=1800&q=82",
+  chamonix: "https://images.unsplash.com/photo-1765628658840-eaf4fcb89634?auto=format&fit=crop&w=1800&q=82",
+  annecy: "https://images.unsplash.com/photo-1473951574080-01fe45ec8643?auto=format&fit=crop&w=1800&q=82",
+  barcelona: "https://images.unsplash.com/photo-1579282240050-352db0a14c21?auto=format&fit=crop&w=1800&q=82",
+  madrid: "https://images.unsplash.com/photo-1543783207-ec64e4d95325?auto=format&fit=crop&w=1800&q=82",
+  seville: "https://images.unsplash.com/photo-1559386081-325882507af7?auto=format&fit=crop&w=1800&q=82",
+  ibiza: "https://images.unsplash.com/photo-1565352336881-dc2c1f7d2d5b?auto=format&fit=crop&w=1800&q=82",
+  mallorca: "https://images.unsplash.com/photo-1561369408-1e91d37fd2c5?auto=format&fit=crop&w=1800&q=82",
+  "san-sebastian": "https://images.unsplash.com/photo-1553455010-bdb488ac12e5?auto=format&fit=crop&w=1800&q=82",
+  valencia: "https://images.unsplash.com/photo-1529437971227-3344caa48ce2?auto=format&fit=crop&w=1800&q=82",
+  granada: "https://images.unsplash.com/photo-1620677366922-4c1741eb010d?auto=format&fit=crop&w=1800&q=82",
+  berlin: "https://images.unsplash.com/photo-1642764984351-0bc68da72f5a?auto=format&fit=crop&w=1800&q=82",
+  munich: "https://images.unsplash.com/photo-1770578797321-76cf0aac0ff4?auto=format&fit=crop&w=1800&q=82",
+  hamburg: "https://images.unsplash.com/photo-1761139844010-442a8b0f5c4f?auto=format&fit=crop&w=1800&q=82",
+  cologne: "https://images.unsplash.com/photo-1722722864801-962b94fbb715?auto=format&fit=crop&w=1800&q=82",
+  frankfurt: "https://images.unsplash.com/photo-1605186620429-1ece911f171c?auto=format&fit=crop&w=1800&q=82",
+  dresden: "https://images.unsplash.com/photo-1755617183037-d1191bea81bf?auto=format&fit=crop&w=1800&q=82",
+  "black-forest": "https://images.unsplash.com/photo-1499702111052-d63bd11c766a?auto=format&fit=crop&w=1800&q=82",
+  "garmisch-partenkirchen": "https://images.unsplash.com/photo-1655204717184-c31a76bd6925?auto=format&fit=crop&w=1800&q=82",
+  london: "https://images.unsplash.com/photo-1486299267070-83823f5448dd?auto=format&fit=crop&w=1800&q=82",
+  bath: "https://images.unsplash.com/photo-1653231905678-1371a378f3f3?auto=format&fit=crop&w=1800&q=82",
+  cotswolds: "https://images.unsplash.com/photo-1670620800615-4225fe6ecb75?auto=format&fit=crop&w=1800&q=82",
+  edinburgh: "https://images.unsplash.com/photo-1721428360480-0d4121f629c4?auto=format&fit=crop&w=1800&q=82",
+  "st-andrews": "https://images.unsplash.com/photo-1570481315879-4569a74233c8?auto=format&fit=crop&w=1800&q=82",
+  manchester: "https://images.unsplash.com/photo-1597740049284-388659a41286?auto=format&fit=crop&w=1800&q=82",
+  cornwall: "https://images.unsplash.com/photo-1546085778-854f30251885?auto=format&fit=crop&w=1800&q=82",
+  "lake-district": "https://images.unsplash.com/photo-1671610466725-8d903268ea46?auto=format&fit=crop&w=1800&q=82",
+  lisbon: "https://images.unsplash.com/photo-1536663815808-535e2280d2c2?auto=format&fit=crop&w=1800&q=82",
+  porto: "https://images.unsplash.com/photo-1555881400-74d7acaacd8b?auto=format&fit=crop&w=1800&q=82",
+  comporta: "https://images.unsplash.com/photo-1538509413798-8b3fc7da2e95?auto=format&fit=crop&w=1800&q=82",
+  algarve: "https://images.unsplash.com/photo-1608649944716-228404a0a8bb?auto=format&fit=crop&w=1800&q=82",
+  madeira: "https://images.unsplash.com/photo-1630324111397-0463bbd27145?auto=format&fit=crop&w=1800&q=82",
+  azores: "https://images.unsplash.com/photo-1725126150604-58fd344dca44?auto=format&fit=crop&w=1800&q=82",
+  "douro-valley": "https://images.unsplash.com/photo-1638664370752-8188076afbab?auto=format&fit=crop&w=1800&q=82",
+  sintra: "https://images.unsplash.com/photo-1562760157-c05fe30e2e8c?auto=format&fit=crop&w=1800&q=82",
+  athens: "https://images.unsplash.com/photo-1603565816030-6b389eeb23cb?auto=format&fit=crop&w=1800&q=82",
+  santorini: "https://images.unsplash.com/photo-1570077188670-e3a8d69ac5ff?auto=format&fit=crop&w=1800&q=82",
+  mykonos: "https://images.unsplash.com/photo-1601581875309-fafbf2d3ed3a?auto=format&fit=crop&w=1800&q=82",
+  crete: "https://images.unsplash.com/photo-1603030580707-d5f787d8b1c7?auto=format&fit=crop&w=1800&q=82",
+  naxos: "https://images.unsplash.com/photo-1601581874834-3b6065645e07?auto=format&fit=crop&w=1800&q=82",
+  paros: "https://images.unsplash.com/photo-1602008194020-13ac6665ebdb?auto=format&fit=crop&w=1800&q=82",
+  corfu: "https://images.unsplash.com/photo-1587974136400-edc19ce0696c?auto=format&fit=crop&w=1800&q=82",
+  meteora: "https://images.unsplash.com/photo-1495386217358-4ffdde036fe7?auto=format&fit=crop&w=1800&q=82",
+  tokyo: "https://images.unsplash.com/photo-1513407030348-c983a97b98d8?auto=format&fit=crop&w=1800&q=82",
+  kyoto: "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&w=1800&q=82",
+  osaka: "https://images.unsplash.com/photo-1589452271712-64b8a66c7b71?auto=format&fit=crop&w=1800&q=82",
+  hakone: "https://images.unsplash.com/photo-1528164344705-47542687000d?auto=format&fit=crop&w=1800&q=82",
+  niseko: "https://images.unsplash.com/photo-1698027180719-f231ddca3cbf?auto=format&fit=crop&w=1800&q=82",
+  sapporo: "https://images.unsplash.com/photo-1773507870827-66ba59a3d9d8?auto=format&fit=crop&w=1800&q=82",
+  kanazawa: "https://images.unsplash.com/photo-1709260295527-611319fb212c?auto=format&fit=crop&w=1800&q=82",
+  naoshima: "https://images.unsplash.com/photo-1761119590621-4aafaeaeb3ca?auto=format&fit=crop&w=1800&q=82",
+  "new-york": "https://images.unsplash.com/photo-1511745235279-2f7276d5ba65?auto=format&fit=crop&w=1800&q=82",
+  miami: "https://images.unsplash.com/photo-1574167506085-a767fce368e9?auto=format&fit=crop&w=1800&q=82",
+  "las-vegas": "https://images.unsplash.com/photo-1581351721010-8cf859cb14a4?auto=format&fit=crop&w=1800&q=82",
+  "los-angeles": "https://images.unsplash.com/flagged/photo-1575555201693-7cd442b8023f?auto=format&fit=crop&w=1800&q=82",
+  "san-francisco": "https://images.unsplash.com/photo-1719858403364-83f7442a197e?auto=format&fit=crop&w=1800&q=82",
+  aspen: "https://images.unsplash.com/photo-1696990459129-68e494ce5d77?auto=format&fit=crop&w=1800&q=82",
+  charleston: "https://images.unsplash.com/photo-1677859533961-51147497c50f?auto=format&fit=crop&w=1800&q=82",
+  austin: "https://images.unsplash.com/photo-1642607906398-2a271b9fb85a?auto=format&fit=crop&w=1800&q=82",
+  maui: "https://images.unsplash.com/photo-1542259009477-d625272157b7?auto=format&fit=crop&w=1800&q=82",
+  sydney: "https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?auto=format&fit=crop&w=1800&q=82",
+  melbourne: "https://images.unsplash.com/photo-1545044846-351ba102b6d5?auto=format&fit=crop&w=1800&q=82",
+  "byron-bay": "https://images.unsplash.com/photo-1559518953-68d1e1945a3a?auto=format&fit=crop&w=1800&q=82",
+  "gold-coast": "https://images.unsplash.com/photo-1591701729564-3b5325d5a4bd?auto=format&fit=crop&w=1800&q=82",
+  whitsundays: "https://images.unsplash.com/photo-1561027104-aa69b72a7174?auto=format&fit=crop&w=1800&q=82",
+  tasmania: "https://images.unsplash.com/photo-1618131886709-7605c9368052?auto=format&fit=crop&w=1800&q=82",
+  perth: "https://images.unsplash.com/photo-1610263514501-381fed0200c0?auto=format&fit=crop&w=1800&q=82",
+  adelaide: "https://images.unsplash.com/photo-1702252212983-db7e428cc3cf?auto=format&fit=crop&w=1800&q=82",
+  noosa: "https://images.unsplash.com/photo-1603805538475-cd3cbec95b4e?auto=format&fit=crop&w=1800&q=82"
+};
+
 const curatedDestinationImages: Record<string, Array<Omit<ImageGalleryItem, "alt">>> = {
   tokyo: [
     { src: "https://images.unsplash.com/photo-1513407030348-c983a97b98d8?auto=format&fit=crop&w=1800&q=82", category: "Landscape", caption: "Tokyo skyline" },
@@ -337,14 +409,38 @@ export const destinations: Destination[] = baseDestinations.map((destination) =>
 
 export const routeConnections: RouteConnection[] = buildRouteConnections(destinations);
 
+export type DuplicateHeroImageIssue = {
+  country: CountryName;
+  src: string;
+  destinationIds: string[];
+};
+
+export function validateDuplicateHeroImagesByCountry(items: Destination[] = destinations): DuplicateHeroImageIssue[] {
+  const seen = new Map<string, string[]>();
+
+  items.forEach((destination) => {
+    const heroSrc = destination.imageGallery[0]?.src.trim();
+    if (!heroSrc) return;
+    const key = `${destination.country}::${heroSrc}`;
+    seen.set(key, [...(seen.get(key) ?? []), destination.id]);
+  });
+
+  return Array.from(seen.entries()).flatMap(([key, destinationIds]) => {
+    if (destinationIds.length < 2) return [];
+    const [country, src] = key.split("::") as [CountryName, string];
+    return [{ country, src, destinationIds }];
+  });
+}
+
 function toPopularity(prominence: DestinationProminence): DestinationPopularity {
   return prominence === "well known" ? "popular" : prominence;
 }
 
 function destinationImageGallery(destination: DestinationSeed): ImageGalleryItem[] {
   const destinationSlug = slug(destination.name);
+  const heroImageUrl = destinationHeroImageUrlById[destinationSlug];
   const curated = curatedDestinationImages[destinationSlug];
-  const images = (curated ?? defaultDestinationGallery(destination)).slice(0, 4);
+  const images = (heroImageUrl ? destinationSpecificGallery(destination, heroImageUrl, curated) : gradientFallbackGallery(destination)).slice(0, 4);
 
   return images.map((image) => ({
     ...image,
@@ -354,14 +450,15 @@ function destinationImageGallery(destination: DestinationSeed): ImageGalleryItem
   }));
 }
 
-function defaultDestinationGallery(destination: DestinationSeed): Array<Omit<ImageGalleryItem, "alt">> {
-  const src = fallbackImageUrlByCountry[destination.country];
+function destinationSpecificGallery(destination: DestinationSeed, heroImageUrl: string, curated?: Array<Omit<ImageGalleryItem, "alt">>): Array<Omit<ImageGalleryItem, "alt">> {
+  const destinationHero = { src: heroImageUrl, category: "Landscape" as const, caption: `${destination.name} destination view` };
+  const secondaryImages = (curated ?? []).filter((image) => image.src !== heroImageUrl);
+  return [destinationHero, ...secondaryImages];
+}
 
+function gradientFallbackGallery(destination: DestinationSeed): Array<Omit<ImageGalleryItem, "alt">> {
   return [
-    { src, category: "Landscape", caption: `${destination.name} travel inspiration` },
-    { src, category: "Culture", caption: `${destination.name} culture and lifestyle` },
-    { src, category: destination.sportsExperiences.length ? "Sports" : "Food", caption: `${destination.name} ${destination.sportsExperiences[0] ?? "food"} planning mood` },
-    { src, category: "Luxury", caption: `${destination.name} premium travel mood` }
+    { src: "", category: "Landscape", caption: `${destination.name} destination image unavailable`, isFallback: true }
   ];
 }
 
