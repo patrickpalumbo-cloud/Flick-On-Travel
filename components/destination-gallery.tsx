@@ -63,7 +63,8 @@ export function DestinationGallery({ images, title, variant = "immersive" }: Des
   if (!activeImage) return null;
 
   const height = variant === "card" ? "h-64" : "h-[72vh] min-h-[520px]";
-  const activeImageFailed = failedImages.has(activeImage.src);
+  const activeImageSrc = typeof activeImage.src === "string" ? activeImage.src.trim() : "";
+  const activeImageFailed = !activeImageSrc || failedImages.has(activeImageSrc);
 
   return (
     <>
@@ -77,8 +78,9 @@ export function DestinationGallery({ images, title, variant = "immersive" }: Des
       >
         {images.map((image, imageIndex) => {
           const visible = imageIndex === index;
-          const failed = !image.src || failedImages.has(image.src);
-          const loaded = image.src ? loadedImages.has(image.src) : false;
+          const imageSrc = typeof image.src === "string" ? image.src.trim() : "";
+          const failed = !imageSrc || failedImages.has(imageSrc);
+          const loaded = imageSrc ? loadedImages.has(imageSrc) : false;
           if (!visible) return null;
 
           return failed ? (
@@ -92,21 +94,21 @@ export function DestinationGallery({ images, title, variant = "immersive" }: Des
             />
           ) : (
             <div
-              key={image.src}
+              key={imageSrc}
               className={`absolute inset-0 transition duration-700 ${
                 visible ? "scale-100 opacity-100" : "scale-105 opacity-0"
               }`}
             >
               <ImageLoadingPlaceholder visible={visible && !loaded} />
               <Image
-                src={image.src}
+                src={imageSrc}
                 alt={image.alt}
                 fill
                 sizes={variant === "card" ? "(max-width: 768px) 82vw, 360px" : "100vw"}
                 priority={variant === "immersive" && imageIndex === 0}
                 loading={variant === "immersive" && imageIndex === 0 ? undefined : "lazy"}
-                onLoad={() => markImageLoaded(image.src)}
-                onError={() => markImageFailed(image.src)}
+                onLoad={() => markImageLoaded(imageSrc)}
+                onError={() => markImageFailed(imageSrc)}
                 className={`object-cover transition duration-700 ${loaded ? "opacity-100" : "opacity-0"}`}
               />
             </div>
@@ -160,10 +162,10 @@ export function DestinationGallery({ images, title, variant = "immersive" }: Des
 
       {fullscreen ? (
         <div className="fixed inset-0 z-[80] bg-black">
-          {!activeImage.src || activeImageFailed ? (
+          {activeImageFailed ? (
             <GalleryFallback caption={activeImage.caption} category={activeImage.category} title={title} visible variant="fullscreen" />
           ) : (
-            <Image src={activeImage.src} alt={activeImage.alt} fill sizes="100vw" onError={() => markImageFailed(activeImage.src)} className="object-contain" />
+            <Image src={activeImageSrc} alt={activeImage.alt} fill sizes="100vw" onError={() => markImageFailed(activeImageSrc)} className="object-contain" />
           )}
           <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black via-black/70 to-transparent p-4 sm:p-6">
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brass">{activeImage.category}</p>

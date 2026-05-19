@@ -24,12 +24,17 @@ export function generateMetadata({ params }: { params: { id: string } }) {
 export default function DestinationPage({ params }: { params: { id: string } }) {
   const guide = getDestinationGuide(params.id);
   if (!guide) notFound();
+  const heroImage = guide.gallery.find((image) => typeof image.src === "string" && image.src.trim().length > 0);
 
   return (
     <TripShell>
       <article className="snap-scroll">
         <section className="snap-panel relative min-h-screen overflow-hidden">
-          <Image src={guide.image} alt={guide.imageAlt} fill priority className="cinematic-pan object-cover" />
+          {heroImage ? (
+            <Image src={heroImage.src} alt={heroImage.alt} fill priority className="cinematic-pan object-cover" />
+          ) : (
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(184,150,87,0.24),transparent_30%),linear-gradient(135deg,#fffaf1,#e8ddce)]" />
+          )}
           <div className="absolute inset-0 bg-gradient-to-r from-ivory/95 via-ivory/72 to-white/5" />
           <div className="absolute inset-0 bg-gradient-to-t from-ivory via-transparent to-white/20" />
 

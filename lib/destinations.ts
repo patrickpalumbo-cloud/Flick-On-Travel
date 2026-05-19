@@ -122,6 +122,19 @@ const globalRegionByCountry: Record<CountryName, Region> = {
   Australia: "Asia-Pacific"
 };
 
+const fallbackImageUrlByCountry: Record<CountryName, string> = {
+  Italy: "https://images.unsplash.com/photo-1552832230-c0197dd311b5?auto=format&fit=crop&w=1800&q=82",
+  France: "https://images.unsplash.com/photo-1550340499-a6c60fc8287c?auto=format&fit=crop&w=1800&q=82",
+  Spain: "https://images.unsplash.com/photo-1539037116277-4db20889f2d4?auto=format&fit=crop&w=1800&q=82",
+  Germany: "https://images.unsplash.com/photo-1560969184-10fe8719e047?auto=format&fit=crop&w=1800&q=82",
+  UK: "https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?auto=format&fit=crop&w=1800&q=82",
+  Portugal: "https://images.unsplash.com/photo-1585208798174-6cedd86e019a?auto=format&fit=crop&w=1800&q=82",
+  Greece: "https://images.unsplash.com/photo-1570077188670-e3a8d69ac5ff?auto=format&fit=crop&w=1800&q=82",
+  Japan: "https://images.unsplash.com/photo-1513407030348-c983a97b98d8?auto=format&fit=crop&w=1800&q=82",
+  USA: "https://images.unsplash.com/photo-1570304816841-906a17d7b067?auto=format&fit=crop&w=1800&q=82",
+  Australia: "https://images.unsplash.com/photo-1595434971780-79d5c20c5090?auto=format&fit=crop&w=1800&q=82"
+};
+
 
 
 function destinationSeed(name: string, country: CountryName, countryRegion: string, nights: number, tags: Interest[], sports: Sport[], prominence: DestinationProminence, lat: number, lon: number, headline: string, activities: string[]): DestinationSeed {
@@ -331,7 +344,7 @@ function toPopularity(prominence: DestinationProminence): DestinationPopularity 
 function destinationImageGallery(destination: DestinationSeed): ImageGalleryItem[] {
   const destinationSlug = slug(destination.name);
   const curated = curatedDestinationImages[destinationSlug];
-  const images = (curated ?? neutralFallbackGallery(destination)).slice(0, 4);
+  const images = (curated ?? defaultDestinationGallery(destination)).slice(0, 4);
 
   return images.map((image) => ({
     ...image,
@@ -341,12 +354,14 @@ function destinationImageGallery(destination: DestinationSeed): ImageGalleryItem
   }));
 }
 
-function neutralFallbackGallery(destination: DestinationSeed): Array<Omit<ImageGalleryItem, "alt">> {
+function defaultDestinationGallery(destination: DestinationSeed): Array<Omit<ImageGalleryItem, "alt">> {
+  const src = fallbackImageUrlByCountry[destination.country];
+
   return [
-    { src: "", category: "Landscape", caption: `${destination.name} landmark imagery unavailable`, isFallback: true },
-    { src: "", category: "Food", caption: `${destination.name} food and lifestyle imagery unavailable`, isFallback: true },
-    { src: "", category: destination.sportsExperiences.length ? "Sports" : "Culture", caption: `${destination.name} ${destination.sportsExperiences[0] ?? "culture"} imagery unavailable`, isFallback: true },
-    { src: "", category: "Luxury", caption: `${destination.name} luxury travel imagery unavailable`, isFallback: true }
+    { src, category: "Landscape", caption: `${destination.name} travel inspiration` },
+    { src, category: "Culture", caption: `${destination.name} culture and lifestyle` },
+    { src, category: destination.sportsExperiences.length ? "Sports" : "Food", caption: `${destination.name} ${destination.sportsExperiences[0] ?? "food"} planning mood` },
+    { src, category: "Luxury", caption: `${destination.name} premium travel mood` }
   ];
 }
 

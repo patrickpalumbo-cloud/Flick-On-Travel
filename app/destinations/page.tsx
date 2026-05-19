@@ -208,7 +208,8 @@ function DestinationCard({ destination }: { destination: Destination }) {
   const [imageFailed, setImageFailed] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
   const image = destination.imageGallery[0];
-  const showFallback = !image?.src || image.isFallback || imageFailed;
+  const imageSrc = typeof image?.src === "string" ? image.src.trim() : "";
+  const showFallback = !imageSrc || imageFailed;
 
   return (
     <article className="premium-panel min-w-[82vw] max-w-[82vw] snap-start overflow-hidden transition duration-300 hover:-translate-y-1 sm:min-w-[360px] sm:max-w-[360px]">
@@ -219,7 +220,7 @@ function DestinationCard({ destination }: { destination: Destination }) {
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.24em] text-brass">{destination.country}</p>
                 <p className="mt-3 font-serif text-4xl leading-none text-ink">{destination.name}</p>
-                <p className="mt-3 text-xs uppercase tracking-[0.16em] text-ink/45">Curated imagery unavailable</p>
+                <p className="mt-3 text-xs uppercase tracking-[0.16em] text-ink/45">Destination image unavailable</p>
               </div>
             </div>
           ) : (
@@ -231,7 +232,7 @@ function DestinationCard({ destination }: { destination: Destination }) {
                 aria-hidden="true"
               />
               <Image
-                src={image.src}
+                src={imageSrc}
                 alt={image.alt}
                 fill
                 sizes="(max-width: 640px) 82vw, 360px"
