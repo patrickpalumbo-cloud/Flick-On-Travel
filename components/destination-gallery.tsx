@@ -65,9 +65,9 @@ export function DestinationGallery({ images, title, variant = "immersive" }: Des
         }}
       >
         {images.map((image, imageIndex) =>
-          failedImages.has(image.src) ? (
+          !image.src || failedImages.has(image.src) ? (
             <GalleryFallback
-              key={image.src}
+              key={`${image.caption}-${imageIndex}`}
               caption={image.caption}
               category={image.category}
               title={title}
@@ -123,7 +123,7 @@ export function DestinationGallery({ images, title, variant = "immersive" }: Des
         <div className="absolute inset-x-4 bottom-0 flex translate-y-1/2 gap-1">
           {images.map((image, imageIndex) => (
             <button
-              key={image.src}
+              key={`${image.src || image.caption}-${imageIndex}`}
               onClick={() => setIndex(imageIndex)}
               className={`focus-ring h-1 flex-1 rounded-full transition ${imageIndex === index ? "bg-brass" : "bg-white/25 hover:bg-white/50"}`}
               aria-label={`Open ${image.category} image`}
@@ -134,7 +134,7 @@ export function DestinationGallery({ images, title, variant = "immersive" }: Des
 
       {fullscreen ? (
         <div className="fixed inset-0 z-[80] bg-black">
-          {activeImageFailed ? (
+          {!activeImage.src || activeImageFailed ? (
             <GalleryFallback caption={activeImage.caption} category={activeImage.category} title={title} visible variant="fullscreen" />
           ) : (
             <img src={activeImage.src} alt={activeImage.alt} onError={() => markImageFailed(activeImage.src)} className="h-full w-full object-contain" />

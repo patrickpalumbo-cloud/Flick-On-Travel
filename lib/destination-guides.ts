@@ -1,4 +1,4 @@
-import { cities, experiences, type City, type Experience } from "@/lib/trip-data";
+import { cities, destinations, experiences, type City, type Experience } from "@/lib/trip-data";
 
 export type DestinationGuide = {
   city: City;
@@ -222,11 +222,12 @@ export function getDestinationGuide(id: string): DestinationGuide | undefined {
 }
 
 function buildGallery(cityId: string, cityName: string): DestinationImage[] {
-  const gallery = destinationGalleries[cityId] ?? destinationGalleries[fallbackGalleryId(cityName)] ?? destinationGalleries.paris;
+  const destination = destinations.find((item) => item.id === cityId);
+  const gallery = destination?.imageGallery ?? destinationGalleries[cityId] ?? [];
 
   return gallery.map((image) => ({
     ...image,
-    alt: `${cityName} ${image.category.toLowerCase()} cinematic travel imagery`
+    alt: "alt" in image ? image.alt : `${cityName} ${image.category.toLowerCase()} cinematic travel imagery`
   }));
 }
 
@@ -240,15 +241,4 @@ function fallbackGuideDetails(city: City): Omit<DestinationGuide, "city" | "expe
     localExperiences: city.activities,
     itinerarySuggestions: [`${city.nights} nights: ${city.activities.slice(0, 2).join(" and ")}`, `Pair with nearby ${city.country} destinations for a modular route`, `Use as a ${city.prominence} stop in a smarter route`]
   };
-}
-
-function fallbackGalleryId(cityName: string) {
-  if (["Tokyo", "Kyoto", "Osaka", "Hakone", "Niseko", "Sapporo", "Kanazawa", "Naoshima"].includes(cityName)) return "tokyo";
-  if (["Paris", "Nice", "Monaco", "Lyon", "Bordeaux", "Provence", "Chamonix", "Annecy"].includes(cityName)) return "paris";
-  if (["New York", "Miami", "Las Vegas", "Los Angeles", "San Francisco", "Aspen", "Charleston", "Austin", "Maui"].includes(cityName)) return "new-york";
-  if (["Sydney", "Melbourne", "Byron Bay", "Gold Coast", "Whitsundays", "Tasmania", "Perth", "Adelaide", "Noosa"].includes(cityName)) return "melbourne";
-  if (["London", "Bath", "Cotswolds", "Edinburgh", "St Andrews", "Manchester", "Cornwall", "Lake District"].includes(cityName)) return "london";
-  if (["Barcelona", "Madrid", "Seville", "Ibiza", "Mallorca", "San Sebastian", "Valencia", "Granada"].includes(cityName)) return "miami";
-  if (["Rome", "Florence", "Venice", "Milan", "Lake Como", "Naples", "Amalfi Coast", "Puglia", "Bologna", "Sicily"].includes(cityName)) return "monaco";
-  return "paris";
 }

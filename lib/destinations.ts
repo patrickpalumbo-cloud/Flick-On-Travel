@@ -23,6 +23,7 @@ export type Pace = "Relaxed" | "Balanced" | "Fast";
 export type GemPreference = "Iconic" | "Balanced" | "Hidden gems";
 export type DestinationPopularity = "popular" | "upcoming" | "hidden gem" | "quiet alternative";
 export type DestinationProminence = "well known" | DestinationPopularity;
+export type DestinationImageCategory = "Sports" | "Nightlife" | "Food" | "Luxury" | "Landscape" | "Culture" | "Wellness";
 
 export const countries: CountryName[] = ["Italy", "France", "Spain", "Germany", "UK", "Portugal", "Greece", "Japan", "USA", "Australia"];
 export const regions: Region[] = ["Europe", "Asia-Pacific", "North America"];
@@ -56,6 +57,8 @@ export type ImageGalleryItem = {
   src: string;
   alt: string;
   caption: string;
+  category: DestinationImageCategory;
+  isFallback?: boolean;
 };
 
 export type Destination = {
@@ -226,13 +229,86 @@ const airportCodes: Record<string, string> = {
   rome: "FCO", florence: "FLR", venice: "VCE", milan: "MXP", naples: "NAP", paris: "CDG", nice: "NCE", monaco: "NCE", lyon: "LYS", bordeaux: "BOD", barcelona: "BCN", madrid: "MAD", seville: "SVQ", ibiza: "IBZ", mallorca: "PMI", valencia: "VLC", berlin: "BER", munich: "MUC", hamburg: "HAM", frankfurt: "FRA", london: "LHR", edinburgh: "EDI", manchester: "MAN", lisbon: "LIS", porto: "OPO", algarve: "FAO", madeira: "FNC", azores: "PDL", athens: "ATH", santorini: "JTR", mykonos: "JMK", crete: "HER", corfu: "CFU", tokyo: "HND", kyoto: "KIX", osaka: "KIX", hakone: "HND", niseko: "CTS", sapporo: "CTS", kanazawa: "KMQ", "new-york": "JFK", miami: "MIA", "las-vegas": "LAS", "los-angeles": "LAX", "san-francisco": "SFO", aspen: "ASE", charleston: "CHS", austin: "AUS", maui: "OGG", sydney: "SYD", melbourne: "MEL", "byron-bay": "BNK", "gold-coast": "OOL", whitsundays: "HTI", tasmania: "HBA", perth: "PER", adelaide: "ADL"
 };
 
+const curatedDestinationImages: Record<string, Array<Omit<ImageGalleryItem, "alt">>> = {
+  tokyo: [
+    { src: "https://images.unsplash.com/photo-1513407030348-c983a97b98d8?auto=format&fit=crop&w=1800&q=82", category: "Landscape", caption: "Tokyo skyline" },
+    { src: "https://images.unsplash.com/photo-1592466741848-20145fe5d6d7?auto=format&fit=crop&w=1800&q=82", category: "Food", caption: "Tokyo sushi counter" },
+    { src: "https://images.unsplash.com/photo-1630999002837-8b560d13ee36?auto=format&fit=crop&w=1800&q=82", category: "Sports", caption: "Tokyo stadium night" },
+    { src: "https://images.unsplash.com/photo-1604928141064-207cea6f571f?auto=format&fit=crop&w=1800&q=82", category: "Luxury", caption: "Tokyo hotel calm" },
+    { src: "https://images.unsplash.com/photo-1498036882173-b41c28a8ba34?auto=format&fit=crop&w=1800&q=82", category: "Nightlife", caption: "Tokyo after dark" }
+  ],
+  london: [
+    { src: "https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?auto=format&fit=crop&w=1800&q=82", category: "Landscape", caption: "London skyline" },
+    { src: "https://images.unsplash.com/photo-1485182708500-e8f1f318ba72?auto=format&fit=crop&w=1800&q=82", category: "Food", caption: "London dining" },
+    { src: "https://images.unsplash.com/photo-1563580853176-38535245e8b6?auto=format&fit=crop&w=1800&q=82", category: "Sports", caption: "London football stadium" },
+    { src: "https://images.unsplash.com/photo-1588021624472-f8345116c8f2?auto=format&fit=crop&w=1800&q=82", category: "Luxury", caption: "London luxury hotel" },
+    { src: "https://images.unsplash.com/photo-1514729797186-944d57303199?auto=format&fit=crop&w=1800&q=82", category: "Nightlife", caption: "London nightlife" }
+  ],
+  monaco: [
+    { src: "https://images.unsplash.com/photo-1594161673326-7f91671d8e3b?auto=format&fit=crop&w=1800&q=82", category: "Landscape", caption: "Monaco harbor" },
+    { src: "https://images.unsplash.com/photo-1683290845590-a119b41e557c?auto=format&fit=crop&w=1800&q=82", category: "Food", caption: "Monaco fine dining" },
+    { src: "https://images.unsplash.com/photo-1596109898239-d8f0b19790a2?auto=format&fit=crop&w=1800&q=82", category: "Sports", caption: "Monaco grand prix" },
+    { src: "https://images.unsplash.com/photo-1491251880772-1fe1c8b6d5f6?auto=format&fit=crop&w=1800&q=82", category: "Luxury", caption: "Monaco luxury hotel" },
+    { src: "https://images.unsplash.com/photo-1566806925366-46c8926ec71c?auto=format&fit=crop&w=1800&q=82", category: "Nightlife", caption: "Monte Carlo nightlife" }
+  ],
+  paris: [
+    { src: "https://images.unsplash.com/photo-1550340499-a6c60fc8287c?auto=format&fit=crop&w=1800&q=82", category: "Landscape", caption: "Paris skyline" },
+    { src: "https://images.unsplash.com/photo-1499856871958-5b9627545d1a?auto=format&fit=crop&w=1800&q=82", category: "Food", caption: "Paris cafe culture" },
+    { src: "https://images.unsplash.com/photo-1749205530242-4c1779aacf99?auto=format&fit=crop&w=1800&q=82", category: "Sports", caption: "Roland-Garros tennis" },
+    { src: "https://images.unsplash.com/photo-1581262177533-1b1760b87952?auto=format&fit=crop&w=1800&q=82", category: "Luxury", caption: "Paris luxury hotel" },
+    { src: "https://images.unsplash.com/photo-1507666664345-c49223375e33?auto=format&fit=crop&w=1800&q=82", category: "Nightlife", caption: "Paris nightlife" }
+  ],
+  "new-york": [
+    { src: "https://images.unsplash.com/photo-1570304816841-906a17d7b067?auto=format&fit=crop&w=1800&q=82", category: "Landscape", caption: "New York skyline" },
+    { src: "https://images.unsplash.com/photo-1634874495432-cb368c167e9b?auto=format&fit=crop&w=1800&q=82", category: "Food", caption: "New York restaurant scene" },
+    { src: "https://images.unsplash.com/photo-1674327175233-51f4d1430eac?auto=format&fit=crop&w=1800&q=82", category: "Sports", caption: "Madison Square Garden" },
+    { src: "https://images.unsplash.com/photo-1512498369875-56977abee2e8?auto=format&fit=crop&w=1800&q=82", category: "Luxury", caption: "New York luxury hotel" },
+    { src: "https://images.unsplash.com/photo-1496588152823-86ff7695e68f?auto=format&fit=crop&w=1800&q=82", category: "Nightlife", caption: "New York nightlife" }
+  ],
+  miami: [
+    { src: "https://images.unsplash.com/photo-1719422244246-93f887d610fc?auto=format&fit=crop&w=1800&q=82", category: "Landscape", caption: "Miami skyline and beach" },
+    { src: "https://images.unsplash.com/photo-1585608234056-42814f70ff7a?auto=format&fit=crop&w=1800&q=82", category: "Food", caption: "Miami restaurant scene" },
+    { src: "https://images.unsplash.com/photo-1711378329038-620af48ace51?auto=format&fit=crop&w=1800&q=82", category: "Sports", caption: "Miami race weekend" },
+    { src: "https://images.unsplash.com/photo-1589083130544-0d6a2926e519?auto=format&fit=crop&w=1800&q=82", category: "Luxury", caption: "Miami luxury hotel" },
+    { src: "https://images.unsplash.com/photo-1533106497176-45ae19e68ba2?auto=format&fit=crop&w=1800&q=82", category: "Nightlife", caption: "Miami nightlife" }
+  ],
+  "las-vegas": [
+    { src: "https://images.unsplash.com/photo-1581351721010-8cf859cb14a4?auto=format&fit=crop&w=1800&q=82", category: "Landscape", caption: "Las Vegas Strip" },
+    { src: "https://images.unsplash.com/photo-1577334928618-2ff2bf09e827?auto=format&fit=crop&w=1800&q=82", category: "Food", caption: "Las Vegas dining" },
+    { src: "https://images.unsplash.com/photo-1705766291313-aacb20e419d1?auto=format&fit=crop&w=1800&q=82", category: "Sports", caption: "Las Vegas arena" },
+    { src: "https://images.unsplash.com/photo-1605833556294-ea5c7a74f57d?auto=format&fit=crop&w=1800&q=82", category: "Luxury", caption: "Las Vegas luxury hotel" },
+    { src: "https://images.unsplash.com/photo-1634400139456-292e44ca5327?auto=format&fit=crop&w=1800&q=82", category: "Nightlife", caption: "Las Vegas nightlife" }
+  ],
+  niseko: [
+    { src: "https://images.unsplash.com/photo-1695059564034-a6f547b330cd?auto=format&fit=crop&w=1800&q=82", category: "Landscape", caption: "Niseko snow" },
+    { src: "https://images.unsplash.com/photo-1629684782790-385ed5adb497?auto=format&fit=crop&w=1800&q=82", category: "Food", caption: "Japanese izakaya food" },
+    { src: "https://images.unsplash.com/photo-1565992441121-4367c2967103?auto=format&fit=crop&w=1800&q=82", category: "Sports", caption: "Ski resort" },
+    { src: "https://images.unsplash.com/photo-1603038976282-a934dd09b746?auto=format&fit=crop&w=1800&q=82", category: "Luxury", caption: "Niseko chalet" },
+    { src: "https://images.unsplash.com/photo-1576829139489-09a55ddbb420?auto=format&fit=crop&w=1800&q=82", category: "Nightlife", caption: "Niseko nightlife" }
+  ],
+  aspen: [
+    { src: "https://images.unsplash.com/photo-1588222804969-1908b87afd88?auto=format&fit=crop&w=1800&q=82", category: "Landscape", caption: "Aspen mountain" },
+    { src: "https://images.unsplash.com/photo-1658865695766-181a1ea9bac6?auto=format&fit=crop&w=1800&q=82", category: "Food", caption: "Colorado restaurant" },
+    { src: "https://images.unsplash.com/photo-1614444894791-c0c4d4286c35?auto=format&fit=crop&w=1800&q=82", category: "Sports", caption: "Aspen skiing" },
+    { src: "https://images.unsplash.com/photo-1777612914411-0151f5fca99f?auto=format&fit=crop&w=1800&q=82", category: "Luxury", caption: "Aspen luxury hotel" },
+    { src: "https://images.unsplash.com/photo-1578451779798-c250e75fd0e1?auto=format&fit=crop&w=1800&q=82", category: "Nightlife", caption: "Aspen nightlife" }
+  ],
+  melbourne: [
+    { src: "https://images.unsplash.com/photo-1595434971780-79d5c20c5090?auto=format&fit=crop&w=1800&q=82", category: "Landscape", caption: "Melbourne skyline" },
+    { src: "https://images.unsplash.com/photo-1572479076096-e7889766e7fe?auto=format&fit=crop&w=1800&q=82", category: "Food", caption: "Melbourne restaurant culture" },
+    { src: "https://images.unsplash.com/photo-1545151414-8a948e1ea54f?auto=format&fit=crop&w=1800&q=82", category: "Sports", caption: "Tennis court energy" },
+    { src: "https://images.unsplash.com/photo-1755868725256-3369f8a6448c?auto=format&fit=crop&w=1800&q=82", category: "Luxury", caption: "Melbourne luxury hotel" },
+    { src: "https://images.unsplash.com/photo-1689866015007-4f7b02bf04a4?auto=format&fit=crop&w=1800&q=82", category: "Nightlife", caption: "Melbourne nightlife" }
+  ]
+};
+
 const baseDestinations: Destination[] = destinationSeeds.map((destination) => ({
   ...destination,
   id: slug(destination.name),
   region: globalRegionByCountry[destination.country],
   popularity: toPopularity(destination.prominence),
   nearbyDestinations: [],
-  imageGallery: defaultImageGallery(destination.name),
+  imageGallery: destinationImageGallery(destination),
   bestFor: destination.tags.slice(0, 4),
   airportCode: airportCodes[slug(destination.name)]
 }));
@@ -252,10 +328,26 @@ function toPopularity(prominence: DestinationProminence): DestinationPopularity 
   return prominence === "well known" ? "popular" : prominence;
 }
 
-function defaultImageGallery(name: string): ImageGalleryItem[] {
+function destinationImageGallery(destination: DestinationSeed): ImageGalleryItem[] {
+  const destinationSlug = slug(destination.name);
+  const curated = curatedDestinationImages[destinationSlug];
+  const images = curated ?? neutralFallbackGallery(destination);
+
+  return images.map((image) => ({
+    ...image,
+    alt: image.src
+      ? `${destination.name} ${image.category.toLowerCase()} imagery`
+      : `${destination.name} premium travel fallback imagery`
+  }));
+}
+
+function neutralFallbackGallery(destination: DestinationSeed): Array<Omit<ImageGalleryItem, "alt">> {
   return [
-    { src: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1800&q=82", alt: name + " travel landscape", caption: name + " landscape" },
-    { src: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1800&q=82", alt: name + " lifestyle moment", caption: name + " lifestyle" }
+    { src: "", category: "Landscape", caption: `${destination.name} landmark image pending`, isFallback: true },
+    { src: "", category: "Food", caption: `${destination.name} food and lifestyle image pending`, isFallback: true },
+    { src: "", category: destination.sportsExperiences.length ? "Sports" : "Culture", caption: `${destination.name} ${destination.sportsExperiences[0] ?? "culture"} image pending`, isFallback: true },
+    { src: "", category: "Luxury", caption: `${destination.name} luxury travel image pending`, isFallback: true },
+    { src: "", category: destination.tags.includes("nightlife") ? "Nightlife" : "Culture", caption: `${destination.name} evening image pending`, isFallback: true }
   ];
 }
 
