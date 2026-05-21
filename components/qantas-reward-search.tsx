@@ -17,12 +17,14 @@ export function QantasRewardSearch() {
   const [destination, setDestination] = useState(";UK");
   const [cabin, setCabin] = useState(cabinOptions[0]);
   const [passengers, setPassengers] = useState(passengerOptions[0]);
-  const [travelWindow, setTravelWindow] = useState("Any date");
+  const [dateMode, setDateMode] = useState<"any" | "specific">("any");
+  const [travelDate, setTravelDate] = useState("");
 
   const qantasUrl = useMemo(() => buildQantasRewardFinderUrl({ origin, destination }), [destination, origin]);
   const originLabel = qantasOriginOptions.find((option) => option.value === origin)?.label ?? origin;
   const destinationOption = qantasDestinationOptions.find((option) => option.value === destination);
   const destinationLabel = destinationOption?.label ?? destination;
+  const travelWindow = dateMode === "specific" && travelDate ? formatTravelDate(travelDate) : "Any date";
 
   return (
     <section className="mx-auto max-w-7xl px-4 pb-16 pt-24 sm:px-6 sm:pt-28 lg:px-8">
@@ -79,10 +81,42 @@ export function QantasRewardSearch() {
               </select>
             </label>
 
-            <label className="grid gap-2 text-sm text-ink/68 md:col-span-2">
-              Travel window
-              <input value={travelWindow} onChange={(event) => setTravelWindow(event.target.value)} className="focus-ring h-12 rounded-sm border border-black/10 bg-white px-4 text-ink" placeholder="Any date, July 2026, school holidays..." />
-            </label>
+            <div className="grid gap-3 text-sm text-ink/68 md:col-span-2">
+              Travel date
+              <div className="grid gap-3 rounded-sm border border-black/10 bg-white/70 p-3 sm:grid-cols-[auto_1fr] sm:items-center">
+                <div className="inline-flex rounded-full border border-black/10 bg-white p-1">
+                  <button
+                    type="button"
+                    onClick={() => setDateMode("any")}
+                    className={`focus-ring rounded-full px-4 py-2 text-xs font-semibold transition ${dateMode === "any" ? "bg-ink text-ivory" : "text-ink/58 hover:text-ink"}`}
+                  >
+                    Any date
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setDateMode("specific")}
+                    className={`focus-ring rounded-full px-4 py-2 text-xs font-semibold transition ${dateMode === "specific" ? "bg-ink text-ivory" : "text-ink/58 hover:text-ink"}`}
+                  >
+                    Choose date
+                  </button>
+                </div>
+
+                <label className={`relative block ${dateMode === "any" ? "opacity-45" : ""}`}>
+                  <CalendarDays className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-brass" size={17} aria-hidden="true" />
+                  <input
+                    type="date"
+                    value={travelDate}
+                    min={new Date().toISOString().slice(0, 10)}
+                    disabled={dateMode === "any"}
+                    onChange={(event) => {
+                      setTravelDate(event.target.value);
+                      setDateMode("specific");
+                    }}
+                    className="focus-ring h-12 w-full rounded-sm border border-black/10 bg-white pl-11 pr-4 text-ink disabled:cursor-not-allowed"
+                  />
+                </label>
+              </div>
+            </div>
           </div>
 
           <div className="mt-6 rounded-sm border border-black/10 bg-white/70 p-4">
@@ -132,4 +166,14 @@ function SearchPill({ icon: Icon, label, value }: { icon: LucideIcon; label: str
       <p className="mt-1 text-sm font-semibold text-ink">{value}</p>
     </div>
   );
+}
+
+function formatTravelDate(value: string) {
+  const [year, month, day] = value.split("-").map(Number);
+  if (!year || !month || !day) return "Any date";
+  return new Intl.DateTimeFormat("en-AU", {
+    day: "numeric",
+    month: "short",
+    year: "numeric"
+  }).format(new Date(year, month - 1, day));
 }
