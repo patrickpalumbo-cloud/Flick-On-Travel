@@ -1,4 +1,5 @@
 import { ExternalLink, Plane, Search } from "lucide-react";
+import Link from "next/link";
 import { qantasRewardFinderUrl } from "@/lib/qantas-reward-finder";
 
 export function QantasRewardFinderCard() {
@@ -24,18 +25,22 @@ export function QantasRewardFinderCard() {
             <p className="mt-7 text-sm leading-7 text-ink/68">
               The finder shows estimated Classic Flight Reward availability and last-checked timing. Always confirm seats, taxes and booking rules on Qantas before making plans.
             </p>
-            <a
-              href={qantasRewardFinderUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="focus-ring mt-6 inline-flex min-h-11 items-center justify-center gap-2 rounded-sm bg-ink px-5 text-sm font-semibold text-ivory shadow-[0_18px_45px_rgba(23,19,15,0.16)] transition duration-300 hover:-translate-y-0.5 hover:bg-graphite"
-            >
-              Open Qantas finder <ExternalLink size={15} aria-hidden="true" />
-            </a>
+            <div className="mt-6 flex flex-col gap-2 sm:flex-row">
+              <Link href="/rewards" className="focus-ring inline-flex min-h-11 items-center justify-center gap-2 rounded-sm bg-ink px-5 text-sm font-semibold text-ivory shadow-[0_18px_45px_rgba(23,19,15,0.16)] transition duration-300 hover:-translate-y-0.5 hover:bg-graphite">
+                Build search <Search size={15} aria-hidden="true" />
+              </Link>
+              <a
+                href={qantasRewardFinderUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="focus-ring inline-flex min-h-11 items-center justify-center gap-2 rounded-sm border border-black/10 bg-white/80 px-5 text-sm font-semibold text-ink"
+              >
+                Open Qantas <ExternalLink size={15} aria-hidden="true" />
+              </a>
+            </div>
           </div>
         </div>
       </div>
     </section>
   );
 }
-

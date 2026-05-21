@@ -24,6 +24,9 @@ export function Nav() {
           <Link className="focus-ring rounded-sm hover:text-ink" href="/itinerary">
             Itinerary
           </Link>
+          <Link className="focus-ring rounded-sm hover:text-ink" href="/rewards">
+            Rewards
+          </Link>
           <Link className="focus-ring rounded-sm hover:text-ink" href="/points">
             Points
           </Link>

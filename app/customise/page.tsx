@@ -2,10 +2,9 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { ArrowRight, CalendarDays, ExternalLink, GripVertical, Hotel, MapPinned, Minus, Plane, Plus, Save, Sparkles, TrainFront, Trophy, X } from "lucide-react";
+import { ArrowRight, CalendarDays, GripVertical, Hotel, MapPinned, Minus, Plane, Plus, Save, Search, Sparkles, TrainFront, Trophy, X } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { TripShell } from "@/components/trip-shell";
-import { qantasRewardFinderUrl } from "@/lib/qantas-reward-finder";
 import { allCountryRegions, buildItinerary, buildTransport, cities, countries, countryRegions, defaultPreferences, experiences, type City, type CountryName, type Experience, type Itinerary } from "@/lib/trip-data";
 import { readItinerary, writeItinerary } from "@/lib/storage";
 
@@ -337,9 +336,9 @@ export default function CustomisePage() {
                 <Link href="/points" className="focus-ring inline-flex min-h-11 items-center justify-center gap-2 rounded-sm bg-ink px-5 text-sm font-semibold text-ivory">
                   Start enquiry <ArrowRight size={15} aria-hidden="true" />
                 </Link>
-                <a href={qantasRewardFinderUrl} target="_blank" rel="noreferrer" className="focus-ring inline-flex min-h-11 items-center justify-center gap-2 rounded-sm border border-black/10 bg-white/75 px-5 text-sm font-semibold text-ink">
-                  Check Qantas rewards <ExternalLink size={15} aria-hidden="true" />
-                </a>
+                <Link href="/rewards" className="focus-ring inline-flex min-h-11 items-center justify-center gap-2 rounded-sm border border-black/10 bg-white/75 px-5 text-sm font-semibold text-ink">
+                  Search rewards <Search size={15} aria-hidden="true" />
+                </Link>
               </div>
             </section>
           </aside>
