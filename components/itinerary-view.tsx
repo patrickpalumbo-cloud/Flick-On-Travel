@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, Building2, Plane, Repeat2, Ticket, TrainFront, X } from "lucide-react";
+import { ArrowRight, Building2, ExternalLink, Plane, Repeat2, Ticket, TrainFront, X } from "lucide-react";
+import { qantasRewardFinderUrl } from "@/lib/qantas-reward-finder";
 import { experiences, type City, type Itinerary } from "@/lib/trip-data";
 
 export function ItineraryView({ itinerary, editable = false, cityOptions = [], onSwap, onDestinationChange, onNightChange, onExperienceRemove }: {
@@ -193,9 +194,14 @@ export function ItineraryView({ itinerary, editable = false, cityOptions = [], o
           <h2 className="text-2xl font-semibold">Optimise this trip with points</h2>
           <p className="mt-2 text-black/68">Send your route for cabin, hotel and transfer-partner strategy.</p>
         </div>
-        <Link href="/points" className="focus-ring inline-flex min-h-11 items-center justify-center gap-2 rounded-sm bg-ink px-5 text-sm font-semibold text-ivory">
-          Start enquiry <Plane size={16} aria-hidden="true" />
-        </Link>
+        <div className="flex flex-col gap-2 sm:flex-row">
+          <Link href="/points" className="focus-ring inline-flex min-h-11 items-center justify-center gap-2 rounded-sm bg-ink px-5 text-sm font-semibold text-ivory">
+            Start enquiry <Plane size={16} aria-hidden="true" />
+          </Link>
+          <a href={qantasRewardFinderUrl} target="_blank" rel="noreferrer" className="focus-ring inline-flex min-h-11 items-center justify-center gap-2 rounded-sm border border-black/10 bg-white/80 px-5 text-sm font-semibold text-ink">
+            Check Qantas rewards <ExternalLink size={15} aria-hidden="true" />
+          </a>
+        </div>
       </section>
 
       {!editable ? (

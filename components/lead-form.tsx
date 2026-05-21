@@ -10,9 +10,10 @@ type LeadFormProps = {
   title: string;
   intro: string;
   showPoints?: boolean;
+  compactTop?: boolean;
 };
 
-export function LeadForm({ type, title, intro, showPoints = false }: LeadFormProps) {
+export function LeadForm({ type, title, intro, showPoints = false, compactTop = false }: LeadFormProps) {
   const [status, setStatus] = useState<"idle" | "loading" | "done" | "error">("idle");
   const [message, setMessage] = useState("");
 
@@ -49,7 +50,7 @@ export function LeadForm({ type, title, intro, showPoints = false }: LeadFormPro
   }
 
   return (
-    <section className="mx-auto w-full max-w-3xl px-4 py-24 sm:px-6 sm:py-28 lg:px-8">
+    <section className={`mx-auto w-full max-w-3xl px-4 pb-24 ${compactTop ? "pt-10 sm:pt-12" : "pt-24 sm:pt-28"} sm:px-6 lg:px-8`}>
       <div className="mb-8 h-px w-32 bg-brass" />
       <p className="mb-4 text-sm font-semibold uppercase tracking-[0.22em] text-brass">{type === "points" ? "Points desk" : "Waitlist"}</p>
       <h1 className="font-serif text-4xl leading-tight text-ink sm:text-6xl">{title}</h1>
